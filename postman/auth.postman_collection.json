@@ -1,0 +1,199 @@
+{
+  "info": {
+    "name": "Auth API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 201 || pm.response.code === 200) {",
+              "    var data = pm.response.json();",
+              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
+              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "User-Agent", "value": "Postman" },
+          { "key": "X-IP-Address", "value": "127.0.0.1" },
+          { "key": "X-Device-Name", "value": "My-PC" },
+          { "key": "X-OS", "value": "Windows" },
+          { "key": "X-Browser", "value": "Chrome" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\",\n    \"fullName\": \"Test User\",\n    \"email\": \"test@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "register"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var data = pm.response.json();",
+              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
+              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "User-Agent", "value": "Postman" },
+          { "key": "X-IP-Address", "value": "127.0.0.1" },
+          { "key": "X-Device-Name", "value": "My-PC" },
+          { "key": "X-OS", "value": "Windows" },
+          { "key": "X-Browser", "value": "Chrome" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "login"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "if (pm.response.code === 200) {",
+              "    var data = pm.response.json();",
+              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
+              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/refresh",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "refresh"]
+        }
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/me/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "me", "logout"]
+        }
+      }
+    },
+    {
+      "name": "Logout All",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/me/logout-all",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "me", "logout-all"]
+        }
+      }
+    },
+    {
+      "name": "Get Devices",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/me/devices",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "me", "devices"]
+        }
+      }
+    },
+    {
+      "name": "Kickout Device",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/auth/me/devices/:deviceId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "v1", "auth", "me", "devices", ":deviceId"],
+          "variable": [
+            {
+              "key": "deviceId",
+              "value": "device-uuid-here"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accessToken",
+      "value": "your-access-token"
+    },
+    {
+      "key": "refreshToken",
+      "value": "your-refresh-token"
+    }
+  ]
+}

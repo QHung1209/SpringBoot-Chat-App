@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "User Relations API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Add Relation",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"target-uuid-here\""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations"]
+        }
+      }
+    },
+    {
+      "name": "Get My Friends",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations/friends?relationId=&search=",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations", "friends"],
+          "query": [
+            {
+              "key": "relationId",
+              "value": ""
+            },
+            {
+              "key": "search",
+              "value": ""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Block User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"target-uuid-here\""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations/block",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations", "block"]
+        }
+      }
+    },
+    {
+      "name": "Unblock User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"target-uuid-here\""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations/unblock",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations", "unblock"]
+        }
+      }
+    },
+    {
+      "name": "Unfriend",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"target-uuid-here\""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations/unfriend",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations", "unfriend"]
+        }
+      }
+    },
+    {
+      "name": "Accept User",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"target-uuid-here\""
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/user-relations/accept",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "user-relations", "accept"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accessToken",
+      "value": "your-access-token"
+    }
+  ]
+}
