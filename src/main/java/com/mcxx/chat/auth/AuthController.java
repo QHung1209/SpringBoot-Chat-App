@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.mcxx.chat.auth.device.UserDevice;
 import com.mcxx.chat.auth.dto.AuthResponse;
 import com.mcxx.chat.auth.dto.AuthUser;
-import com.mcxx.chat.auth.dto.CreateDeviceRequest;
-import com.mcxx.chat.auth.dto.DeviceResponse;
 import com.mcxx.chat.auth.dto.LoginRequest;
 import com.mcxx.chat.auth.dto.RefreshRequest;
 import com.mcxx.chat.auth.dto.RegisterRequest;
-
+import com.mcxx.chat.common.dto.ApiResponse;
+import com.mcxx.chat.device.UserDevice;
+import com.mcxx.chat.device.dto.CreateDeviceRequest;
+import com.mcxx.chat.device.dto.DeviceResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,58 +33,72 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/register")
-  public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req,
-      @RequestHeader("User-Agent") String userAgent,
-      @RequestHeader("X-IP-Address") String ipAddress,
-      @RequestHeader("X-Device-Name") String deviceName, @RequestHeader("X-OS") String os,
-      @RequestHeader("X-Browser") String browser) {
+  public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest req,
+      @RequestHeader(value = "X-Device-Id", required = false) UUID deviceId,
+      @RequestHeader(value = "User-Agent", required = false) String userAgent,
+      @RequestHeader(value = "X-IP-Address", required = false) String ipAddress,
+      @RequestHeader(value = "X-Device-Name", required = false) String deviceName, 
+      @RequestHeader(value = "X-OS", required = false) String os,
+      @RequestHeader(value = "X-Browser", required = false) String browser) {
+      
+    if (deviceId == null) {
+      deviceId = java.util.UUID.randomUUID();
+    }
     CreateDeviceRequest deviceReq =
-        new CreateDeviceRequest(deviceName, userAgent, ipAddress, os, browser);
+        new CreateDeviceRequest(deviceId, deviceName, userAgent, ipAddress, os, browser);
     AuthResponse res = authService.register(req, deviceReq);
-    return ResponseEntity.status(HttpStatus.CREATED).body(res);
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(200, res));
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req,
-      @RequestHeader("User-Agent") String userAgent,
-      @RequestHeader("X-IP-Address") String ipAddress,
-      @RequestHeader("X-Device-Name") String deviceName, @RequestHeader("X-OS") String os,
-      @RequestHeader("X-Browser") String browser) {
+  public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest req,
+      @RequestHeader(value = "X-Device-Id", required = false) UUID deviceId,
+      @RequestHeader(value = "User-Agent", required = false) String userAgent,
+      @RequestHeader(value = "X-IP-Address", required = false) String ipAddress,
+      @RequestHeader(value = "X-Device-Name", required = false) String deviceName, 
+      @RequestHeader(value = "X-OS", required = false) String os,
+      @RequestHeader(value = "X-Browser", required = false) String browser) {
+
+    if (deviceId == null) {
+      deviceId = java.util.UUID.randomUUID();
+    }
     CreateDeviceRequest deviceReq =
-        new CreateDeviceRequest(deviceName, userAgent, ipAddress, os, browser);
+        new CreateDeviceRequest(deviceId, deviceName, userAgent, ipAddress, os, browser);
     AuthResponse res = authService.login(req, deviceReq);
-    return ResponseEntity.status(HttpStatus.OK).body(res);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, res));
   }
 
   @PostMapping("/refresh")
-  public ResponseEntity<AuthResponse> refreshTokens(@Valid @RequestBody RefreshRequest req) {
+  public ResponseEntity<ApiResponse<AuthResponse>> refreshTokens(
+      @Valid @RequestBody RefreshRequest req) {
     AuthResponse res = authService.refreshTokens(req.getRefreshToken());
-    return ResponseEntity.status(HttpStatus.OK).body(res);
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, res));
   }
 
   @PostMapping("/me/logout")
-  public ResponseEntity<Void> logout(@AuthenticationPrincipal AuthUser user) {
+  public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal AuthUser user) {
     authService.logout(user.getId(), user.getDeviceId());
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, null));
   }
 
   @PostMapping("/me/logout-all")
-  public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal AuthUser user) {
+  public ResponseEntity<ApiResponse<Void>> logoutAll(@AuthenticationPrincipal AuthUser user) {
     authService.logoutAll(user.getId());
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, null));
   }
 
   @GetMapping("me/devices")
-  public ResponseEntity<List<DeviceResponse>> getDevices(@AuthenticationPrincipal AuthUser user) {
+  public ResponseEntity<ApiResponse<List<DeviceResponse>>> getDevices(
+      @AuthenticationPrincipal AuthUser user) {
     List<UserDevice> devices = authService.getDevices(user.getId());
     return ResponseEntity.status(HttpStatus.OK)
-        .body(devices.stream().map(DeviceResponse::from).toList());
+        .body(ApiResponse.success(200, devices.stream().map(DeviceResponse::from).toList()));
   }
 
   @DeleteMapping("/me/devices/{deviceId}")
-  public ResponseEntity<Void> kickout(@AuthenticationPrincipal AuthUser user,
+  public ResponseEntity<ApiResponse<Void>> kickout(@AuthenticationPrincipal AuthUser user,
       @PathVariable UUID deviceId) {
     authService.logout(user.getId(), deviceId);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, null));
   }
 }

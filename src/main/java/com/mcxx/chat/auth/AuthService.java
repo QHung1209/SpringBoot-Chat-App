@@ -10,16 +10,15 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.mcxx.chat.auth.device.TokenSession;
-import com.mcxx.chat.auth.device.TokenSessionRepository;
-import com.mcxx.chat.auth.device.UserDevice;
-import com.mcxx.chat.auth.device.UserDeviceRepository;
 import com.mcxx.chat.auth.dto.AuthResponse;
-import com.mcxx.chat.auth.dto.CreateDeviceRequest;
 import com.mcxx.chat.auth.dto.LoginRequest;
 import com.mcxx.chat.auth.dto.RegisterRequest;
 import com.mcxx.chat.auth.jwt.JwtService;
+import com.mcxx.chat.device.TokenSession;
+import com.mcxx.chat.device.TokenSessionRepository;
+import com.mcxx.chat.device.UserDevice;
+import com.mcxx.chat.device.UserDeviceRepository;
+import com.mcxx.chat.device.dto.CreateDeviceRequest;
 import com.mcxx.chat.user.User;
 import com.mcxx.chat.user.UserRepository;
 import com.mcxx.chat.user.dto.UserResponse;
@@ -66,8 +65,22 @@ public class AuthService {
   }
 
   private AuthResponse generateTokens(User user, CreateDeviceRequest deviceReq) {
-    UserDevice device = new UserDevice(user.getId(), deviceReq.getName(), deviceReq.getUserAgent(),
-        deviceReq.getIpAddress(), deviceReq.getOs(), deviceReq.getBrowser(), 0);
+    UserDevice device = userDeviceRepository
+        .findById(deviceReq.getId())
+        .orElseGet(() -> {
+          UserDevice newDevice = new UserDevice(user.getId(), deviceReq.getName(),
+              deviceReq.getUserAgent(), deviceReq.getIpAddress(), deviceReq.getOs(),
+              deviceReq.getBrowser(), 0);
+          newDevice.setId(deviceReq.getId());
+          return newDevice;
+        });
+
+    device.setIpAddress(deviceReq.getIpAddress());
+    device.setUserAgent(deviceReq.getUserAgent());
+    device.setOs(deviceReq.getOs());
+    device.setBrowser(deviceReq.getBrowser());
+    device.setName(deviceReq.getName());
+    device.setTokenVersion(device.getTokenVersion() == null ? 0 : device.getTokenVersion() + 1);
 
     userDeviceRepository.save(device);
 
@@ -79,7 +92,7 @@ public class AuthService {
 
     tokenSessionRepository.save(session);
 
-    return AuthResponse.from(UserResponse.from(user), accessToken, refreshToken);
+    return AuthResponse.from(UserResponse.from(user), accessToken, refreshToken, device.getId());
   }
 
   @Transactional
@@ -116,7 +129,7 @@ public class AuthService {
     tokenSessionRepository
         .save(new TokenSession(device.getId(), user.getId(), jwtService.getAccessExpSeconds()));
 
-    return AuthResponse.from(UserResponse.from(user), newAccessToken, newRefreshToken);
+    return AuthResponse.from(UserResponse.from(user), newAccessToken, newRefreshToken, device.getId());
   }
 
   public void logout(UUID userId, UUID deviceId) {

@@ -7,7 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import com.mcxx.chat.auth.dto.AuthUser;
-import com.mcxx.chat.user.UserCacheService;
+import com.mcxx.chat.common.cache.UserCacheService;
 import com.mcxx.chat.user.dto.UserBasicInfo;
 import lombok.RequiredArgsConstructor;
 
@@ -20,10 +20,10 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
   @Override
   public AbstractAuthenticationToken convert(Jwt jwt) {
     UserBasicInfo info = userCache.getUserBasicInfo(UUID.fromString(jwt.getSubject()));
-    AuthUser authUser =
-        new AuthUser(UUID.fromString(info.getId().toString()), info.getUsername(), info.getName(),
-            info.getEmail(), info.getAvatar(), UUID.fromString(jwt.getClaimAsString("device_id")),
-            Integer.valueOf(jwt.getClaimAsString("token_version")));
+    AuthUser authUser = new AuthUser(UUID.fromString(info.getId().toString()), info.getUsername(),
+        info.getFullName(), info.getEmail(), info.getAvatar(),
+        UUID.fromString(jwt.getClaimAsString("device_id")),
+        Integer.valueOf(jwt.getClaimAsString("token_version")));
     return new UsernamePasswordAuthenticationToken(authUser, jwt,
         java.util.Collections.emptyList());
   }
