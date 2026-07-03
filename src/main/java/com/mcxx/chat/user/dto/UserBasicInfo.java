@@ -13,7 +13,7 @@ import lombok.Setter;
 public class UserBasicInfo {
   private UUID id;
   private String username;
-  private String name;
+  private String fullName;
   private String email;
   private String avatar;
 }
