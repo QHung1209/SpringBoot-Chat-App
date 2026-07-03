@@ -1,4 +1,4 @@
-package com.mcxx.chat.auth.device;
+package com.mcxx.chat.device;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.mcxx.chat.auth.device;
+package com.mcxx.chat.device;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +23,8 @@ public interface UserDeviceRepository extends JpaRepository<UserDevice, UUID> {
   void incrementTokenVersionByUserId(@Param("userId") UUID userId);
 
   Optional<UserDevice> findByIdAndUserId(UUID deviceId, UUID userId);
+
+  Optional<UserDevice> findFirstByUserIdAndUserAgent(UUID userId, String userAgent);
 
   List<UserDevice> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
