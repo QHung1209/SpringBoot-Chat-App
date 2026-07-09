@@ -33,7 +33,7 @@ public class UserController {
     return ResponseEntity.ok(ApiResponse.success(200, userService.getProfile(authUser.getId())));
   }
 
-  @PatchMapping("/me")
+  @PostMapping("/me")
   public ResponseEntity<ApiResponse<UserResponse>> updateMyProfile(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody UpdateProfileRequest req) {
     return ResponseEntity
