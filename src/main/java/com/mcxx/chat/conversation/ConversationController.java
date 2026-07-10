@@ -16,6 +16,7 @@ import com.mcxx.chat.auth.dto.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
+import com.mcxx.chat.conversation.dto.response.ConversationResponse;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +27,7 @@ public class ConversationController {
   private final ConversationService conversationService;
 
   @GetMapping
-  public ResponseEntity<ApiResponse<List<Conversation>>> getConversations(
+  public ResponseEntity<ApiResponse<List<ConversationResponse>>> getConversations(
       @AuthenticationPrincipal AuthUser authUser,
       @RequestParam(required = false) Instant updatedTime) {
     return ResponseEntity.ok(ApiResponse.success(200,

@@ -63,4 +63,9 @@ public class ConversationMemberService {
 
   }
 
+  public Boolean isMember(UUID conversationId, UUID userId) {
+    // TODO check member in cache redis
+    return conversationMemberRepository.existsByConversationIdAndUserId(conversationId, userId);
+  }
+
 }

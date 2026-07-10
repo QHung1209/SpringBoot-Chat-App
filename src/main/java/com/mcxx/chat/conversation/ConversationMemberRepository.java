@@ -42,4 +42,6 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
       """, nativeQuery = true)
   List<ConversationMember> findAllByConversationIdOrderByCreatedAtAsc(UUID conversationId,
       Instant createdAt);
+
+  Boolean existsByConversationIdAndUserId(UUID conversationId, UUID userId);
 }

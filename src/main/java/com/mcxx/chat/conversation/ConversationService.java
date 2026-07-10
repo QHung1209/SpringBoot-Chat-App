@@ -13,6 +13,8 @@ import com.mcxx.chat.common.util.PairKeyGenerator;
 import com.mcxx.chat.conversation.constants.ConversationRole;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
+import com.mcxx.chat.conversation.dto.response.ConversationResponse;
+import com.mcxx.chat.conversation.projection.ConversationMessageProjection;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -63,8 +65,22 @@ public class ConversationService {
     return conv;
   }
 
-  public List<Conversation> getConversations(UUID userId, Instant updatedTime) {
-    return conversationRepository.getConversations(userId, updatedTime);
+  public List<ConversationResponse> getConversations(UUID userId, Instant updatedTime) {
+    List<ConversationMessageProjection> list =
+        conversationRepository.getConversations(userId, updatedTime);
+
+    return list.stream().map(proj -> {
+      ConversationResponse resp = new ConversationResponse();
+      resp.setId(proj.getId());
+      resp.setType(proj.getType());
+      resp.setName(proj.getName());
+      resp.setAvatarUrl(proj.getAvatarUrl());
+      resp.setUpdatedAt(proj.getUpdatedAt());
+      resp.setContent(proj.getContent());
+      resp.setSenderId(proj.getSenderId());
+      resp.setLastMessageId(proj.getLastMessageId());
+      return resp;
+    }).toList();
   }
 
   public Conversation detail(UUID conversationId) {
@@ -79,6 +95,14 @@ public class ConversationService {
     conversation.setName(request.getName());
     conversation.setAvatarUrl(request.getAvatarUrl());
     conversationRepository.save(conversation);
+  }
+
+  public void updateLastMessage(UUID conversationId, UUID messageId, Instant at) {
+    Conversation conv = conversationRepository.findById(conversationId)
+        .orElseThrow(() -> new NotFoundException(Conversation.class, conversationId));
+    conv.setLastMessageId(messageId);
+    conv.setUpdatedAt(at);
+    conversationRepository.save(conv);
   }
 
 }
