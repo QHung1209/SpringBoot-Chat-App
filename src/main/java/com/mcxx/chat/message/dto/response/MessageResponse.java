@@ -1,6 +1,7 @@
 package com.mcxx.chat.message.dto.response;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import com.mcxx.chat.message.Message;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class MessageResponse {
   private Boolean isPinned;
   private Instant createdAt;
   private Instant updatedAt;
+  private List<ReactionResponse> reactions;
 
   public static MessageResponse from(Message message) {
     MessageResponse resp = new MessageResponse();

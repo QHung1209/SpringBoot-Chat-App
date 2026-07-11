@@ -17,6 +17,8 @@ import com.mcxx.chat.common.dto.ApiResponse;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.conversation.dto.response.ConversationResponse;
+import com.mcxx.chat.message.MessageService;
+import com.mcxx.chat.message.dto.response.MessageResponse;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ConversationController {
   private final ConversationService conversationService;
+  private final MessageService messageService;
 
   @GetMapping
   public ResponseEntity<ApiResponse<List<ConversationResponse>>> getConversations(
@@ -37,6 +40,14 @@ public class ConversationController {
   @GetMapping("/{conversationId}")
   public ResponseEntity<ApiResponse<Conversation>> detail(@PathVariable UUID conversationId) {
     return ResponseEntity.ok(ApiResponse.success(200, conversationService.detail(conversationId)));
+  }
+
+  @GetMapping("/{conversationId}/messages")
+  public ResponseEntity<ApiResponse<List<MessageResponse>>> getMessages(
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
+      @RequestParam(required = false) Instant cursor) {
+    return ResponseEntity
+        .ok(ApiResponse.success(200, messageService.getMessages(conversationId, cursor)));
   }
 
   @PostMapping("/create-direct")

@@ -89,4 +89,10 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ApiResponse.error(400, "BAD_REQUEST", ex.getMessage()));
   }
+
+  @ExceptionHandler(ForbiddenException.class)
+  public ResponseEntity<ApiResponse<Object>> handleForbiddenException(ForbiddenException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ApiResponse.error(403, "FORBIDDEN", ex.getMessage()));
+  }
 }
