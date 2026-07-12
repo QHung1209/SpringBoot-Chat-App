@@ -13,9 +13,13 @@ import lombok.RequiredArgsConstructor;
 public class MessageReactionService {
   private final MessageReactionRepository messageReactionRepository;
 
-  public List<ReactionResponse> getReactions(List<UUID> messageIds) {
+  public List<ReactionResponse> getReactions(List<UUID> messageIds, UUID userId) {
+    if (messageIds.isEmpty()) {
+      return List.of();
+    }
+
     List<ReactionSummaryProjection> projections =
-        messageReactionRepository.findByMessageIds(messageIds);
+        messageReactionRepository.findByMessageIds(messageIds, userId);
     return projections.stream().map(ReactionResponse::from).toList();
   }
 
@@ -40,7 +44,7 @@ public class MessageReactionService {
       messageReactionRepository.save(entity);
     }
 
-    return getReactions(List.of(messageId));
+    return getReactions(List.of(messageId), userId);
     // TODO optimize by redis cache for highly frequently accessed reaction
   }
 

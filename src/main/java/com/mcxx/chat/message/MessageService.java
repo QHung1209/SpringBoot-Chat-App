@@ -25,7 +25,10 @@ public class MessageService {
   private final ConversationMemberService conversationMemberService;
   private final MessageReactionService messageReactionService;
 
-  public List<MessageResponse> getMessages(UUID conversationId, Instant createdAt) {
+  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant createdAt) {
+    if (!conversationMemberService.isMember(conversationId, userId)) {
+      throw new BadRequestException("Invalid conversation");
+    }
 
     List<Message> messages =
         messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, createdAt);
@@ -33,7 +36,7 @@ public class MessageService {
     List<UUID> messageIds = messages.stream().map(Message::getId).toList();
 
     Map<UUID, List<ReactionResponse>> reactionsByMessage =
-        messageReactionService.getReactions(messageIds).stream()
+        messageReactionService.getReactions(messageIds, userId).stream()
             .collect(Collectors.groupingBy(ReactionResponse::getMessageId));
 
     return messages.stream().map(message -> {

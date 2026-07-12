@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import com.mcxx.chat.message.projection.ReactionSummaryProjection;
 
 public interface MessageReactionRepository extends JpaRepository<MessageReaction, UUID> {
@@ -17,7 +18,8 @@ public interface MessageReactionRepository extends JpaRepository<MessageReaction
       WHERE message_id IN :messageIds
       GROUP BY reaction, message_id
         """, nativeQuery = true)
-  List<ReactionSummaryProjection> findByMessageIds(List<UUID> messageIds);
+  List<ReactionSummaryProjection> findByMessageIds(@Param("messageIds") List<UUID> messageIds,
+      @Param("userId") UUID userId);
 
   void deleteByMessageIdAndUserId(UUID messageId, UUID userId);
 

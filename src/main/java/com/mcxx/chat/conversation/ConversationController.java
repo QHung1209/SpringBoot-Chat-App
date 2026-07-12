@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mcxx.chat.auth.dto.AuthUser;
@@ -19,7 +20,6 @@ import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.conversation.dto.response.ConversationResponse;
 import com.mcxx.chat.message.MessageService;
 import com.mcxx.chat.message.dto.response.MessageResponse;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -47,7 +47,8 @@ public class ConversationController {
       @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
       @RequestParam(required = false) Instant cursor) {
     return ResponseEntity
-        .ok(ApiResponse.success(200, messageService.getMessages(conversationId, cursor)));
+        .ok(ApiResponse.success(200, messageService.getMessages(authUser.getId(), conversationId,
+            cursor)));
   }
 
   @PostMapping("/create-direct")
