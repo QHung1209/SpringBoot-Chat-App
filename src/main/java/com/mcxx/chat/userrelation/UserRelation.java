@@ -10,10 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity()
+@Entity
 @Table(name = "user_relations")
-@Getter()
-@Setter()
+@Getter
+@Setter
 @NoArgsConstructor
 public class UserRelation extends BaseEntity {
   private UUID userLowId;

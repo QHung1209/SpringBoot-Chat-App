@@ -30,10 +30,10 @@ public class User extends BaseEntity {
   @Column(unique = true, length = 20)
   private String phoneNumber;
 
-  @Column()
+  @Column
   private String avatarUrl;
 
-  @Column()
+  @Column
   private String bio;
 
 }
