@@ -33,10 +33,10 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
   Long countByConversationIdAndRole(UUID conversationId, ConversationRole role);
 
   @Query(value = """
-      SELECT
+      SELECT *
       FROM conversation_members
       WHERE conversation_id = :conversationId
-      AND (created_at IS NULL OR created_at > :createdAt)
+      AND (:createdAt IS NULL OR created_at > :createdAt)
       ORDER BY created_at ASC
       LIMIT 30
       """, nativeQuery = true)

@@ -4,17 +4,20 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.mcxx.chat.common.exception.NotFoundException;
 import com.mcxx.chat.conversation.constants.ConversationRole;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ConversationMemberService {
 
   private final ConversationMemberRepository conversationMemberRepository;
   private final ConversationRepository conversationRepository;
 
+  @Transactional(readOnly = true)
   public List<ConversationMember> getMembers(UUID conversationId, Instant createdAt) {
     return conversationMemberRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId,
         createdAt);
@@ -63,6 +66,7 @@ public class ConversationMemberService {
 
   }
 
+  @Transactional(readOnly = true)
   public Boolean isMember(UUID conversationId, UUID userId) {
     // TODO check member in cache redis
     return conversationMemberRepository.existsByConversationIdAndUserId(conversationId, userId);
