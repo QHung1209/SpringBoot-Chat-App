@@ -25,13 +25,13 @@ public class MessageService {
   private final ConversationMemberService conversationMemberService;
   private final MessageReactionService messageReactionService;
 
-  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant createdAt) {
+  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant updatedAt) {
     if (!conversationMemberService.isMember(conversationId, userId)) {
       throw new BadRequestException("Invalid conversation");
     }
 
     List<Message> messages =
-        messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, createdAt);
+        messageRepository.findByConversationIdOrderByUpdatedAtDesc(conversationId, updatedAt);
 
     List<UUID> messageIds = messages.stream().map(Message::getId).toList();
 

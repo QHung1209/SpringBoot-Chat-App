@@ -8,15 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-  @Query(value = """
-      SELECT id, content, conversation_id, sender_id, type, metadata, reply_to_message_id, media_id,
-      is_pinned, deleted_at, created_at
-      FROM messages
-      WHERE conversation_id = :conversationId
-      AND (:createdAt IS NULL OR created_at < :createdAt)
-      ORDER BY created_at DESC
-      LIMIT 15
-      """, nativeQuery = true)
-  public List<Message> findByConversationIdOrderByCreatedAtDesc(UUID conversationId,
-      Instant createdAt);
+    @Query(value = """
+            SELECT id, content, conversation_id, sender_id, type, metadata, reply_to_message_id, media_id,
+            is_pinned, deleted_at,created_at, updated_at
+            FROM messages
+            WHERE conversation_id = :conversationId
+            AND (:updatedAt IS NULL OR updated_at < :updatedAt)
+            ORDER BY updated_at DESC
+            LIMIT 15
+            """,
+            nativeQuery = true)
+    public List<Message> findByConversationIdOrderByUpdatedAtDesc(UUID conversationId,
+            Instant updatedAt);
 }

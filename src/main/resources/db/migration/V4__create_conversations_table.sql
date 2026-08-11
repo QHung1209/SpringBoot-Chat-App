@@ -40,7 +40,7 @@ CREATE TABLE messages (
   conversation_id UUID NOT NULL,
   sender_id UUID NOT NULL,
   type VARCHAR(20) DEFAULT 'TEXT',
-  content TEXT NOT NULL,
+  content TEXT,
   metadata JSONB,
   reply_to_message_id uuid DEFAULT NULL,
   media_id uuid DEFAULT NULL,
@@ -61,12 +61,14 @@ FOREIGN KEY (last_message_id)
 REFERENCES messages(id);
 
 CREATE TABLE message_reactions (
+    id UUID PRIMARY KEY,
     message_id UUID NOT NULL,
     user_id UUID NOT NULL,
     reaction VARCHAR(20) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (message_id, user_id),
+    UNIQUE (message_id, user_id),
 
     CONSTRAINT fk_message_reactions_message
         FOREIGN KEY (message_id)
