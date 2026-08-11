@@ -17,7 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/messages/{messageId}/reactions")
+@RequestMapping("/api/v1/messages/{messageId}/reactions")
 @RequiredArgsConstructor
 public class MessageReactionController {
   private final MessageReactionService messageReactionService;

@@ -87,7 +87,7 @@ public class AuthController {
     return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(200, null));
   }
 
-  @GetMapping("me/devices")
+  @GetMapping("/me/devices")
   public ResponseEntity<ApiResponse<List<DeviceResponse>>> getDevices(
       @AuthenticationPrincipal AuthUser user) {
     List<UserDevice> devices = authService.getDevices(user.getId());

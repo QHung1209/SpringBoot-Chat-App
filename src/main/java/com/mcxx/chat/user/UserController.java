@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,6 @@ import com.mcxx.chat.user.dto.ChangePasswordRequest;
 import com.mcxx.chat.user.dto.UpdateProfileRequest;
 import com.mcxx.chat.user.dto.UserBasicInfo;
 import com.mcxx.chat.user.dto.UserResponse;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 
 @RestController
@@ -53,7 +53,7 @@ public class UserController {
     return ResponseEntity.ok(ApiResponse.success(200, userService.getProfile(userId)));
   }
 
-  @PostMapping("change-password")
+  @PostMapping("/change-password")
   public ResponseEntity<ApiResponse<Void>> changePassword(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody ChangePasswordRequest req) {
     userService.changePassword(authUser.getId(), req);

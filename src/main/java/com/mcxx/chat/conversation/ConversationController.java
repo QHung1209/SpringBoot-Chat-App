@@ -15,15 +15,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.mcxx.chat.auth.dto.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
+import com.mcxx.chat.conversation.dto.request.CreateDirectConversationRequest;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.conversation.dto.response.ConversationResponse;
 import com.mcxx.chat.message.MessageService;
 import com.mcxx.chat.message.dto.response.MessageResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/conversations")
+@RequestMapping("/api/v1/conversations")
 @RequiredArgsConstructor
 public class ConversationController {
   private final ConversationService conversationService;
@@ -53,21 +55,22 @@ public class ConversationController {
 
   @PostMapping("/create-direct")
   public ResponseEntity<ApiResponse<Conversation>> createDirectConversation(
-      @AuthenticationPrincipal AuthUser authUser, @RequestBody UUID otherUserId) {
+      @AuthenticationPrincipal AuthUser authUser,
+      @Valid @RequestBody CreateDirectConversationRequest request) {
     return ResponseEntity.ok(ApiResponse.success(200,
-        conversationService.createDirectConversation(authUser.getId(), otherUserId)));
+        conversationService.createDirectConversation(authUser.getId(), request.getOtherUserId())));
   }
 
   @PostMapping("/create-group")
   public ResponseEntity<ApiResponse<Conversation>> createGroupConversation(
-      @AuthenticationPrincipal AuthUser authUser, @RequestBody CreateGroupRequest request) {
+      @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody CreateGroupRequest request) {
     return ResponseEntity.ok(ApiResponse.success(200,
         conversationService.createGroupConversation(authUser.getId(), request)));
   }
 
   @PutMapping("/{conversationId}")
   public ResponseEntity<ApiResponse<Void>> updateGroupInfo(@PathVariable UUID conversationId,
-      @RequestBody UpdateGroupRequest request) {
+      @Valid @RequestBody UpdateGroupRequest request) {
     conversationService.updateGroupInfo(conversationId, request);
     return ResponseEntity.ok().build();
   }
