@@ -23,6 +23,7 @@ public class TokenSession {
   private UUID deviceId;
   @Indexed
   private UUID userId;
+  private Integer tokenVersion;
 
   @TimeToLive
   private long ttlSeconds;

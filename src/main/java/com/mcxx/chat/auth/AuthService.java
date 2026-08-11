@@ -65,15 +65,22 @@ public class AuthService {
   }
 
   private AuthResponse generateTokens(User user, CreateDeviceRequest deviceReq) {
-    UserDevice device = userDeviceRepository
-        .findById(deviceReq.getId())
-        .orElseGet(() -> {
-          UserDevice newDevice = new UserDevice(user.getId(), deviceReq.getName(),
-              deviceReq.getUserAgent(), deviceReq.getIpAddress(), deviceReq.getOs(),
-              deviceReq.getBrowser(), 0);
-          newDevice.setId(deviceReq.getId());
-          return newDevice;
-        });
+    UserDevice device = userDeviceRepository.findById(deviceReq.getId()).map(existing -> {
+      if (!existing.getUserId().equals(user.getId())) {
+        UserDevice newDevice =
+            new UserDevice(user.getId(), deviceReq.getName(), deviceReq.getUserAgent(),
+                deviceReq.getIpAddress(), deviceReq.getOs(), deviceReq.getBrowser(), 0);
+        newDevice.setId(UUID.randomUUID());
+        return newDevice;
+      }
+      return existing;
+    }).orElseGet(() -> {
+      UserDevice newDevice =
+          new UserDevice(user.getId(), deviceReq.getName(), deviceReq.getUserAgent(),
+              deviceReq.getIpAddress(), deviceReq.getOs(), deviceReq.getBrowser(), 0);
+      newDevice.setId(deviceReq.getId());
+      return newDevice;
+    });
 
     device.setIpAddress(deviceReq.getIpAddress());
     device.setUserAgent(deviceReq.getUserAgent());
@@ -88,7 +95,8 @@ public class AuthService {
     String refreshToken = jwtService.generateRefreshToken(user, device, null);
 
     TokenSession session =
-        new TokenSession(device.getId(), user.getId(), jwtService.getAccessExpSeconds());
+        new TokenSession(device.getId(), user.getId(), device.getTokenVersion(),
+            jwtService.getAccessExpSeconds());
 
     tokenSessionRepository.save(session);
 
@@ -107,10 +115,11 @@ public class AuthService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token invalid");
     }
 
+    UUID userId = UUID.fromString(jwt.getSubject());
     UUID deviceId = UUID.fromString(jwt.getClaimAsString("device_id"));
     Integer tokenVersion = Integer.valueOf(jwt.getClaimAsString("token_version"));
 
-    UserDevice device = userDeviceRepository.findById(deviceId)
+    UserDevice device = userDeviceRepository.findByIdAndUserId(deviceId, userId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token invalid"));
 
     if (!device.getTokenVersion().equals(tokenVersion)) {
@@ -127,9 +136,11 @@ public class AuthService {
     String newRefreshToken =
         jwtService.generateRefreshToken(user, device, jwt.getExpiresAt().getEpochSecond());
     tokenSessionRepository
-        .save(new TokenSession(device.getId(), user.getId(), jwtService.getAccessExpSeconds()));
+        .save(new TokenSession(device.getId(), user.getId(), device.getTokenVersion(),
+            jwtService.getAccessExpSeconds()));
 
-    return AuthResponse.from(UserResponse.from(user), newAccessToken, newRefreshToken, device.getId());
+    return AuthResponse.from(UserResponse.from(user), newAccessToken, newRefreshToken,
+        device.getId());
   }
 
   public void logout(UUID userId, UUID deviceId) {

@@ -21,9 +21,13 @@ public class TokenSessionValidator implements OAuth2TokenValidator<Jwt> {
       return OAuth2TokenValidatorResult.success();
     }
 
+    UUID userId = UUID.fromString(token.getSubject());
     UUID deviceId = UUID.fromString(token.getClaimAsString("device_id"));
+    Integer tokenVersion = Integer.valueOf(token.getClaimAsString("token_version"));
 
     return tokenSessionRepository.findById(deviceId)
+        .filter(session -> session.getUserId().equals(userId))
+        .filter(session -> session.getTokenVersion().equals(tokenVersion))
         .map(s -> OAuth2TokenValidatorResult.success())
         .orElseGet(() -> OAuth2TokenValidatorResult.failure(
             new OAuth2Error("Invalid token")));
