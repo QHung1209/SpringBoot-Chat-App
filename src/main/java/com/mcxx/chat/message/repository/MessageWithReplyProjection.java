@@ -17,8 +17,6 @@ public interface MessageWithReplyProjection {
 
     String getMetadata();
 
-    UUID getReplyToMessageId();
-
     UUID getMediaId();
 
     Boolean getIsPinned();

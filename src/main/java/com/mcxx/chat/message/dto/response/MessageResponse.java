@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import com.mcxx.chat.message.domain.Message;
+import com.mcxx.chat.message.repository.MessageWithReplyProjection;
 import lombok.Data;
 
 @Data
@@ -13,7 +14,6 @@ public class MessageResponse {
   private UUID senderId;
   private String type;
   private String content;
-  private UUID replyToMessageId;
   private MessageResponse replyToMessage;
   private UUID mediaId;
   private Boolean isPinned;
@@ -33,7 +33,6 @@ public class MessageResponse {
     resp.setSenderId(message.getSenderId());
     resp.setType(message.getType());
     resp.setContent(message.getDeletedAt() != null ? null : message.getContent());
-    resp.setReplyToMessageId(message.getReplyToMessageId());
     resp.setMediaId(message.getMediaId());
     resp.setIsPinned(message.getIsPinned());
     resp.setCreatedAt(message.getCreatedAt());
@@ -46,14 +45,13 @@ public class MessageResponse {
     return resp;
   }
 
-  public static MessageResponse from(com.mcxx.chat.message.repository.MessageWithReplyProjection p) {
+  public static MessageResponse from(MessageWithReplyProjection p) {
     MessageResponse resp = new MessageResponse();
     resp.setId(p.getId());
     resp.setConversationId(p.getConversationId());
     resp.setSenderId(p.getSenderId());
     resp.setType(p.getType());
     resp.setContent(p.getDeletedAt() != null ? null : p.getContent());
-    resp.setReplyToMessageId(p.getReplyToMessageId());
     resp.setMediaId(p.getMediaId());
     resp.setIsPinned(p.getIsPinned());
     resp.setCreatedAt(p.getCreatedAt());
@@ -75,4 +73,3 @@ public class MessageResponse {
     return resp;
   }
 }
-
