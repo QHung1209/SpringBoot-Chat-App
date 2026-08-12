@@ -1,5 +1,6 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.repository;
 
+import com.mcxx.chat.conversation.domain.ConversationMember;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +8,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import com.mcxx.chat.conversation.constants.ConversationRole;
+import com.mcxx.chat.conversation.domain.ConversationRole;
 
 public interface ConversationMemberRepository extends JpaRepository<ConversationMember, UUID> {
 
@@ -28,6 +29,13 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
 
   List<ConversationMember> findAllByConversationId(UUID conversationId);
 
+  @Query(value = """
+      SELECT user_id
+      FROM conversation_members
+      WHERE conversation_id = :conversationId
+      """, nativeQuery = true)
+  List<UUID> findUserIdsByConversationId(UUID conversationId);
+
   Optional<ConversationMember> findByConversationIdAndUserId(UUID conversationId, UUID userId);
 
   Long countByConversationIdAndRole(UUID conversationId, ConversationRole role);
@@ -36,7 +44,7 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
       SELECT *
       FROM conversation_members
       WHERE conversation_id = :conversationId
-      AND (:createdAt IS NULL OR created_at > :createdAt)
+      AND (cast(:createdAt as timestamp) IS NULL OR created_at > cast(:createdAt as timestamp))
       ORDER BY created_at ASC
       LIMIT 30
       """, nativeQuery = true)

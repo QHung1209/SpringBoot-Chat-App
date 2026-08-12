@@ -1,5 +1,9 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.application;
 
+import com.mcxx.chat.conversation.repository.ConversationMemberRepository;
+import com.mcxx.chat.conversation.repository.ConversationRepository;
+import com.mcxx.chat.conversation.domain.ConversationMember;
+import com.mcxx.chat.conversation.domain.Conversation;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +14,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import com.mcxx.chat.common.exception.NotFoundException;
 import com.mcxx.chat.common.util.PairKeyGenerator;
-import com.mcxx.chat.conversation.constants.ConversationRole;
+import com.mcxx.chat.conversation.domain.ConversationRole;
+import com.mcxx.chat.conversation.domain.ConversationType;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.conversation.dto.response.ConversationResponse;
-import com.mcxx.chat.conversation.projection.ConversationMessageProjection;
+import com.mcxx.chat.conversation.repository.ConversationMessageProjection;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +42,8 @@ public class ConversationService {
 
     try {
       Conversation conversation =
-          conversationRepository.save(new Conversation(null, "DIRECT", null, pairKey, null, user1));
+          conversationRepository
+              .save(new Conversation(null, ConversationType.DIRECT, null, pairKey, null, user1));
 
       conversationMemberRepository.saveAll(List.of(
           new ConversationMember(conversation.getId(), "", user1, ConversationRole.ADMIN, null,
@@ -52,8 +58,11 @@ public class ConversationService {
   }
 
   public Conversation createGroupConversation(UUID meId, CreateGroupRequest request) {
-    Conversation conv = conversationRepository
-        .save(new Conversation(null, "GROUP", request.getName(), null, null, meId));
+    Conversation conversation = new Conversation();
+    conversation.setType(ConversationType.GROUP);
+    conversation.setName(request.getName());
+    conversation.setCreatedBy(meId);
+    Conversation conv = conversationRepository.save(conversation);
     List<ConversationMember> members = request.getMemberIds().stream()
         .map(
             id -> new ConversationMember(conv.getId(), "", id, ConversationRole.MEMBER, null, null))
@@ -72,7 +81,7 @@ public class ConversationService {
     return list.stream().map(proj -> {
       ConversationResponse resp = new ConversationResponse();
       resp.setId(proj.getId());
-      resp.setType(proj.getType());
+      resp.setType(ConversationType.valueOf(proj.getType()));
       resp.setName(proj.getName());
       resp.setAvatarUrl(proj.getAvatarUrl());
       resp.setUpdatedAt(proj.getUpdatedAt());

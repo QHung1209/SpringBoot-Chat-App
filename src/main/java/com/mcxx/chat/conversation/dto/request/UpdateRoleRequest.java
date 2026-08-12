@@ -1,7 +1,7 @@
 package com.mcxx.chat.conversation.dto.request;
 
 import java.util.UUID;
-import com.mcxx.chat.conversation.constants.ConversationRole;
+import com.mcxx.chat.conversation.domain.ConversationRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;

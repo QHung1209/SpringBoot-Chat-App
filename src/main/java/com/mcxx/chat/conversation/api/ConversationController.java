@@ -1,5 +1,6 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.api;
 
+import com.mcxx.chat.conversation.application.ConversationService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -13,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.mcxx.chat.auth.dto.AuthUser;
+import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
 import com.mcxx.chat.conversation.dto.request.CreateDirectConversationRequest;
 import com.mcxx.chat.conversation.dto.request.CreateGroupRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.conversation.dto.response.ConversationResponse;
-import com.mcxx.chat.message.MessageService;
+import com.mcxx.chat.message.application.MessageService;
 import com.mcxx.chat.message.dto.response.MessageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +41,9 @@ public class ConversationController {
   }
 
   @GetMapping("/{conversationId}")
-  public ResponseEntity<ApiResponse<Conversation>> detail(@PathVariable UUID conversationId) {
-    return ResponseEntity.ok(ApiResponse.success(200, conversationService.detail(conversationId)));
+  public ResponseEntity<ApiResponse<ConversationResponse>> detail(@PathVariable UUID conversationId) {
+    return ResponseEntity
+        .ok(ApiResponse.success(200, ConversationResponse.from(conversationService.detail(conversationId))));
   }
 
   @GetMapping("/{conversationId}/messages")
@@ -54,24 +56,25 @@ public class ConversationController {
   }
 
   @PostMapping("/create-direct")
-  public ResponseEntity<ApiResponse<Conversation>> createDirectConversation(
+  public ResponseEntity<ApiResponse<ConversationResponse>> createDirectConversation(
       @AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody CreateDirectConversationRequest request) {
     return ResponseEntity.ok(ApiResponse.success(200,
-        conversationService.createDirectConversation(authUser.getId(), request.getOtherUserId())));
+        ConversationResponse.from(
+            conversationService.createDirectConversation(authUser.getId(), request.getOtherUserId()))));
   }
 
   @PostMapping("/create-group")
-  public ResponseEntity<ApiResponse<Conversation>> createGroupConversation(
+  public ResponseEntity<ApiResponse<ConversationResponse>> createGroupConversation(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody CreateGroupRequest request) {
     return ResponseEntity.ok(ApiResponse.success(200,
-        conversationService.createGroupConversation(authUser.getId(), request)));
+        ConversationResponse.from(conversationService.createGroupConversation(authUser.getId(), request))));
   }
 
   @PutMapping("/{conversationId}")
   public ResponseEntity<ApiResponse<Void>> updateGroupInfo(@PathVariable UUID conversationId,
       @Valid @RequestBody UpdateGroupRequest request) {
     conversationService.updateGroupInfo(conversationId, request);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 }

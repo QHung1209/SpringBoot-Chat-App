@@ -1,5 +1,6 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.api;
 
+import com.mcxx.chat.conversation.application.ConversationMemberService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import com.mcxx.chat.common.dto.ApiResponse;
 import com.mcxx.chat.conversation.dto.request.AddMembersRequest;
 import com.mcxx.chat.conversation.dto.request.MemberIdRequest;
 import com.mcxx.chat.conversation.dto.request.UpdateRoleRequest;
+import com.mcxx.chat.conversation.dto.response.ConversationMemberResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -25,10 +27,11 @@ public class ConversationMemberController {
   private final ConversationMemberService conversationMemberService;
 
   @GetMapping
-  public ResponseEntity<ApiResponse<List<ConversationMember>>> getMembers(
+  public ResponseEntity<ApiResponse<List<ConversationMemberResponse>>> getMembers(
       @PathVariable UUID conversationId, @RequestParam(required = false) Instant createdAt) {
-    return ResponseEntity.ok(
-        ApiResponse.success(200, conversationMemberService.getMembers(conversationId, createdAt)));
+    return ResponseEntity.ok(ApiResponse.success(200,
+        conversationMemberService.getMembers(conversationId, createdAt).stream()
+            .map(ConversationMemberResponse::from).toList()));
   }
 
   @PostMapping("/add")

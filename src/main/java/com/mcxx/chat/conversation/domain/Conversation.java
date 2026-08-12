@@ -1,8 +1,10 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.domain;
 
 import java.util.UUID;
 import com.mcxx.chat.common.util.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +19,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Conversation extends BaseEntity {
   private String name;
-  private String type;
+  @Enumerated(EnumType.STRING)
+  private ConversationType type;
   private String avatarUrl;
   private String pairKey;
   private UUID lastMessageId;

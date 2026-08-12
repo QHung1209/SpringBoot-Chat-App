@@ -1,8 +1,7 @@
-package com.mcxx.chat.conversation;
+package com.mcxx.chat.conversation.domain;
 
 import java.util.UUID;
 import com.mcxx.chat.common.util.BaseEntity;
-import com.mcxx.chat.conversation.constants.ConversationRole;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
