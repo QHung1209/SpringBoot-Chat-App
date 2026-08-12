@@ -1,5 +1,6 @@
-package com.mcxx.chat.device;
+package com.mcxx.chat.device.repository;
 
+import com.mcxx.chat.device.domain.TokenSession;
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;

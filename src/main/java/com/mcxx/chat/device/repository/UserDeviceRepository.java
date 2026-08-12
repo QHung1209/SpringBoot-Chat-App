@@ -1,5 +1,6 @@
-package com.mcxx.chat.device;
+package com.mcxx.chat.device.repository;
 
+import com.mcxx.chat.device.domain.UserDevice;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

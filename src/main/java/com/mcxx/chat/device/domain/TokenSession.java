@@ -1,4 +1,4 @@
-package com.mcxx.chat.device;
+package com.mcxx.chat.device.domain;
 
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;

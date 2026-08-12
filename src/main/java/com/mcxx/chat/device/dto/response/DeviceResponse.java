@@ -1,8 +1,8 @@
-package com.mcxx.chat.device.dto;
+package com.mcxx.chat.device.dto.response;
 
 import java.time.Instant;
 import java.util.UUID;
-import com.mcxx.chat.device.UserDevice;
+import com.mcxx.chat.device.domain.UserDevice;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

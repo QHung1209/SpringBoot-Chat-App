@@ -1,4 +1,4 @@
-package com.mcxx.chat.device.dto;
+package com.mcxx.chat.device.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
