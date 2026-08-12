@@ -1,4 +1,4 @@
-package com.mcxx.chat.auth.dto;
+package com.mcxx.chat.auth.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

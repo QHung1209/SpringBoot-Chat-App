@@ -6,9 +6,9 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-import com.mcxx.chat.auth.dto.AuthUser;
+import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.common.cache.UserCacheService;
-import com.mcxx.chat.user.dto.UserBasicInfo;
+import com.mcxx.chat.user.dto.response.UserBasicInfo;
 import lombok.RequiredArgsConstructor;
 
 @Component

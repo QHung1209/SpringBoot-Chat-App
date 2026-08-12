@@ -1,4 +1,4 @@
-package com.mcxx.chat.auth;
+package com.mcxx.chat.auth.application;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,18 +10,18 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.mcxx.chat.auth.dto.AuthResponse;
-import com.mcxx.chat.auth.dto.LoginRequest;
-import com.mcxx.chat.auth.dto.RegisterRequest;
+import com.mcxx.chat.auth.dto.response.AuthResponse;
+import com.mcxx.chat.auth.dto.request.LoginRequest;
+import com.mcxx.chat.auth.dto.request.RegisterRequest;
 import com.mcxx.chat.auth.jwt.JwtService;
-import com.mcxx.chat.device.TokenSession;
-import com.mcxx.chat.device.TokenSessionRepository;
-import com.mcxx.chat.device.UserDevice;
-import com.mcxx.chat.device.UserDeviceRepository;
-import com.mcxx.chat.device.dto.CreateDeviceRequest;
-import com.mcxx.chat.user.User;
-import com.mcxx.chat.user.UserRepository;
-import com.mcxx.chat.user.dto.UserResponse;
+import com.mcxx.chat.device.domain.TokenSession;
+import com.mcxx.chat.device.repository.TokenSessionRepository;
+import com.mcxx.chat.device.domain.UserDevice;
+import com.mcxx.chat.device.repository.UserDeviceRepository;
+import com.mcxx.chat.device.dto.request.CreateDeviceRequest;
+import com.mcxx.chat.user.domain.User;
+import com.mcxx.chat.user.repository.UserRepository;
+import com.mcxx.chat.user.dto.response.UserResponse;
 
 import lombok.RequiredArgsConstructor;
 

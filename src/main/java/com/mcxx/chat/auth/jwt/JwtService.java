@@ -9,8 +9,8 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
-import com.mcxx.chat.device.UserDevice;
-import com.mcxx.chat.user.User;
+import com.mcxx.chat.device.domain.UserDevice;
+import com.mcxx.chat.user.domain.User;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

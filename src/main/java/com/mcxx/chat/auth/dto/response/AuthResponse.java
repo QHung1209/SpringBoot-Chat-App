@@ -1,7 +1,7 @@
-package com.mcxx.chat.auth.dto;
+package com.mcxx.chat.auth.dto.response;
 
 import java.util.UUID;
-import com.mcxx.chat.user.dto.UserResponse;
+import com.mcxx.chat.user.dto.response.UserResponse;
 
 import lombok.Getter;
 import lombok.Setter;

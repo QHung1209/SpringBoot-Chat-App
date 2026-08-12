@@ -1,5 +1,6 @@
-package com.mcxx.chat.auth;
+package com.mcxx.chat.auth.api;
 
+import com.mcxx.chat.auth.application.AuthService;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.mcxx.chat.auth.dto.AuthResponse;
-import com.mcxx.chat.auth.dto.AuthUser;
-import com.mcxx.chat.auth.dto.LoginRequest;
-import com.mcxx.chat.auth.dto.RefreshRequest;
-import com.mcxx.chat.auth.dto.RegisterRequest;
+import com.mcxx.chat.auth.dto.response.AuthResponse;
+import com.mcxx.chat.auth.dto.response.AuthUser;
+import com.mcxx.chat.auth.dto.request.LoginRequest;
+import com.mcxx.chat.auth.dto.request.RefreshRequest;
+import com.mcxx.chat.auth.dto.request.RegisterRequest;
 import com.mcxx.chat.common.dto.ApiResponse;
-import com.mcxx.chat.device.UserDevice;
-import com.mcxx.chat.device.dto.CreateDeviceRequest;
-import com.mcxx.chat.device.dto.DeviceResponse;
+import com.mcxx.chat.device.domain.UserDevice;
+import com.mcxx.chat.device.dto.request.CreateDeviceRequest;
+import com.mcxx.chat.device.dto.response.DeviceResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -47,7 +48,7 @@ public class AuthController {
     CreateDeviceRequest deviceReq =
         new CreateDeviceRequest(deviceId, deviceName, userAgent, ipAddress, os, browser);
     AuthResponse res = authService.register(req, deviceReq);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(200, res));
+    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(201, res));
   }
 
   @PostMapping("/login")
