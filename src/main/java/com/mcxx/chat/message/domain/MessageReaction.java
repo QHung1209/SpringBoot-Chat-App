@@ -1,4 +1,4 @@
-package com.mcxx.chat.message;
+package com.mcxx.chat.message.domain;
 
 import java.util.UUID;
 import com.mcxx.chat.common.util.BaseEntity;

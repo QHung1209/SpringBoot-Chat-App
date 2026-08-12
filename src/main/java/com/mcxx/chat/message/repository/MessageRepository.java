@@ -1,5 +1,6 @@
-package com.mcxx.chat.message;
+package com.mcxx.chat.message.repository;
 
+import com.mcxx.chat.message.domain.Message;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +14,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             is_pinned, deleted_at,created_at, updated_at
             FROM messages
             WHERE conversation_id = :conversationId
-            AND (:updatedAt IS NULL OR updated_at < :updatedAt)
+            AND (cast(:updatedAt as timestamp) IS NULL OR updated_at < cast(:updatedAt as timestamp))
             ORDER BY updated_at DESC
             LIMIT 15
             """,

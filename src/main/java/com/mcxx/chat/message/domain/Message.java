@@ -1,4 +1,4 @@
-package com.mcxx.chat.message;
+package com.mcxx.chat.message.domain;
 
 import java.time.Instant;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.mcxx.chat.message.projection;
+package com.mcxx.chat.message.repository;
 
 import java.util.UUID;
 

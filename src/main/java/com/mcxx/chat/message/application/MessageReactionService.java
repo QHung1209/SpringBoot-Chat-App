@@ -1,11 +1,13 @@
-package com.mcxx.chat.message;
+package com.mcxx.chat.message.application;
 
+import com.mcxx.chat.message.repository.MessageReactionRepository;
+import com.mcxx.chat.message.domain.MessageReaction;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import com.mcxx.chat.message.dto.response.ReactionResponse;
-import com.mcxx.chat.message.projection.ReactionSummaryProjection;
+import com.mcxx.chat.message.repository.ReactionSummaryProjection;
 import lombok.RequiredArgsConstructor;
 
 @Service

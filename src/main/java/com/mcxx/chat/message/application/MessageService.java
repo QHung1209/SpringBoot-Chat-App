@@ -1,19 +1,23 @@
-package com.mcxx.chat.message;
+package com.mcxx.chat.message.application;
 
+import com.mcxx.chat.conversation.domain.Conversation;
+import com.mcxx.chat.message.repository.MessageRepository;
+import com.mcxx.chat.message.domain.Message;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import com.mcxx.chat.common.exception.BadRequestException;
 import com.mcxx.chat.common.exception.ForbiddenException;
-import com.mcxx.chat.conversation.Conversation;
-import com.mcxx.chat.conversation.ConversationMemberService;
-import com.mcxx.chat.conversation.ConversationService;
+import com.mcxx.chat.conversation.application.ConversationMemberService;
+import com.mcxx.chat.conversation.application.ConversationService;
 import com.mcxx.chat.message.dto.request.SendMessageRequest;
 import com.mcxx.chat.message.dto.response.MessageResponse;
 import com.mcxx.chat.message.dto.response.ReactionResponse;
+import com.mcxx.chat.message.event.MessageCreatedEvent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +28,7 @@ public class MessageService {
   private final ConversationService conversationService;
   private final ConversationMemberService conversationMemberService;
   private final MessageReactionService messageReactionService;
+  private final ApplicationEventPublisher eventPublisher;
 
   public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant updatedAt) {
     if (!conversationMemberService.isMember(conversationId, userId)) {
@@ -67,7 +72,8 @@ public class MessageService {
     message = messageRepository.save(message);
 
     conversationService.updateLastMessage(conv.getId(), message.getId(), Instant.now());
-
+    
+    eventPublisher.publishEvent(new MessageCreatedEvent(conv.getId(), message));
     return message;
   }
 

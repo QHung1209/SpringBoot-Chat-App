@@ -3,7 +3,7 @@ package com.mcxx.chat.message.dto.response;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import com.mcxx.chat.message.Message;
+import com.mcxx.chat.message.domain.Message;
 import lombok.Data;
 
 @Data
