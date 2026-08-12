@@ -1,4 +1,4 @@
-package com.mcxx.chat.userrelation.dto;
+package com.mcxx.chat.userrelation.dto.response;
 
 import java.util.UUID;
 

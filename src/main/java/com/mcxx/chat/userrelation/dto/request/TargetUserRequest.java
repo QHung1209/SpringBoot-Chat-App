@@ -1,4 +1,4 @@
-package com.mcxx.chat.userrelation.dto;
+package com.mcxx.chat.userrelation.dto.request;
 
 import java.util.UUID;
 import jakarta.validation.constraints.NotNull;

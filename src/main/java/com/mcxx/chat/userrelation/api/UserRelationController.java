@@ -1,5 +1,6 @@
-package com.mcxx.chat.userrelation;
+package com.mcxx.chat.userrelation.api;
 
+import com.mcxx.chat.userrelation.application.UserRelationService;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -10,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.mcxx.chat.auth.dto.AuthUser;
+import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
-import com.mcxx.chat.userrelation.dto.FriendView;
-import com.mcxx.chat.userrelation.dto.RelationQuery;
-import com.mcxx.chat.userrelation.dto.TargetUserRequest;
+import com.mcxx.chat.userrelation.dto.response.FriendView;
+import com.mcxx.chat.userrelation.dto.request.RelationQuery;
+import com.mcxx.chat.userrelation.dto.request.TargetUserRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
@@ -35,7 +36,7 @@ public class UserRelationController {
   public ResponseEntity<ApiResponse<Void>> addRelation(@AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody TargetUserRequest request) {
     userRelationService.addRelation(authUser.getId(), request.getTargetId());
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @GetMapping("/my-requests")
@@ -49,28 +50,28 @@ public class UserRelationController {
   public ResponseEntity<ApiResponse<Void>> blockUser(@AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody TargetUserRequest request) {
     userRelationService.blockUser(authUser.getId(), request.getTargetId());
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @PostMapping("/unblock")
   public ResponseEntity<ApiResponse<Void>> unblockUser(@AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody TargetUserRequest request) {
     userRelationService.deleteRelation(authUser.getId(), request.getTargetId());
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @PostMapping("/unfriend")
   public ResponseEntity<ApiResponse<Void>> unFriend(@AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody TargetUserRequest request) {
     userRelationService.deleteRelation(authUser.getId(), request.getTargetId());
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @PostMapping("/accept")
   public ResponseEntity<ApiResponse<Void>> acceptUser(@AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody TargetUserRequest request) {
     userRelationService.acceptUser(authUser.getId(), request.getTargetId());
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
 

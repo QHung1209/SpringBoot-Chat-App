@@ -1,5 +1,8 @@
-package com.mcxx.chat.userrelation;
+package com.mcxx.chat.userrelation.application;
 
+import com.mcxx.chat.userrelation.repository.UserRelationRepository;
+import com.mcxx.chat.userrelation.domain.UserRelation;
+import com.mcxx.chat.userrelation.domain.RelationStatus;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -7,8 +10,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.mcxx.chat.userrelation.dto.FriendView;
-import com.mcxx.chat.userrelation.dto.RelationQuery;
+import com.mcxx.chat.userrelation.dto.response.FriendView;
+import com.mcxx.chat.userrelation.dto.request.RelationQuery;
 import lombok.RequiredArgsConstructor;
 
 @Service

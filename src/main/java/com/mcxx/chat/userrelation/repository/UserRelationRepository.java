@@ -1,12 +1,13 @@
-package com.mcxx.chat.userrelation;
+package com.mcxx.chat.userrelation.repository;
 
+import com.mcxx.chat.userrelation.domain.UserRelation;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import com.mcxx.chat.userrelation.dto.FriendView;
+import com.mcxx.chat.userrelation.dto.response.FriendView;
 
 public interface UserRelationRepository extends JpaRepository<UserRelation, UUID> {
 
@@ -26,10 +27,10 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
                       WHEN r.user_low_id = :id THEN r.user_high_id
                       ELSE r.user_low_id
                     END
-        WHERE (:search IS NULL OR u.full_name ILIKE CONCAT('%', :search, '%'))
+        WHERE (cast(:search as text) IS NULL OR u.full_name ILIKE CONCAT('%', :search, '%'))
         AND r.status = :status
         AND (r.user_low_id = :id OR r.user_high_id = :id)
-        AND (:relationId IS NULL OR r.id < :relationId)
+        AND (cast(:relationId as uuid) IS NULL OR r.id < cast(:relationId as uuid))
 
         ORDER BY r.id DESC
         LIMIT 30
@@ -76,7 +77,7 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
       FROM user_relations r
       WHERE r.status = 'PENDING'
         AND r.action_user_id = :id
-      AND (:relationId IS NULL OR r.id < :relationId)
+      AND (cast(:relationId as uuid) IS NULL OR r.id < cast(:relationId as uuid))
       ORDER BY r.id DESC
       LIMIT 30
       ) f

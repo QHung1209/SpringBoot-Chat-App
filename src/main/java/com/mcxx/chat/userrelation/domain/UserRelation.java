@@ -1,4 +1,4 @@
-package com.mcxx.chat.userrelation;
+package com.mcxx.chat.userrelation.domain;
 
 import java.util.UUID;
 import com.mcxx.chat.common.util.BaseEntity;

@@ -1,7 +1,7 @@
-package com.mcxx.chat.userrelation.dto;
+package com.mcxx.chat.userrelation.dto.request;
 
 import java.util.UUID;
-import com.mcxx.chat.userrelation.RelationStatus;
+import com.mcxx.chat.userrelation.domain.RelationStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
