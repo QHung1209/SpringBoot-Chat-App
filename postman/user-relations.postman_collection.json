@@ -1,137 +1,117 @@
 {
   "info": {
-    "name": "User Relations API",
+    "name": "mcxx-chat / User Relations",
+    "_postman_id": "mcxx-user-relations",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
   },
   "item": [
     {
-      "name": "Add Relation",
+      "name": "Get Relations",
       "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "\"target-uuid-here\""
-        },
+        "method": "GET",
         "url": {
-          "raw": "{{baseUrl}}/api/user-relations",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations"]
-        }
+          "raw": "{{baseUrl}}/user-relations?status=FRIEND&relationId=",
+          "query": [
+            {
+              "key": "status",
+              "value": "FRIEND",
+              "description": "Lọc theo trạng thái: PENDING | FRIEND | BLOCKED"
+            },
+            {
+              "key": "relationId",
+              "value": "",
+              "description": "Optional. UUID của relation cuối cùng từ trang trước (cursor-based pagination)."
+            }
+          ]
+        },
+        "description": "Lấy danh sách quan hệ của user đang đăng nhập theo trạng thái."
       }
     },
     {
-      "name": "Get My Friends",
+      "name": "Get My Sent Requests",
       "request": {
         "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
-        ],
         "url": {
-          "raw": "{{baseUrl}}/api/user-relations/friends?relationId=&search=",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations", "friends"],
+          "raw": "{{baseUrl}}/user-relations/my-requests?relationId=",
           "query": [
             {
               "key": "relationId",
-              "value": ""
-            },
-            {
-              "key": "search",
-              "value": ""
+              "value": "",
+              "description": "Optional. UUID của relation cuối cùng từ trang trước (cursor-based pagination)."
             }
           ]
-        }
+        },
+        "description": "Lấy danh sách lời mời kết bạn mà user đang đăng nhập đã gửi (trạng thái PENDING)."
       }
     },
     {
-      "name": "Block User",
+      "name": "Send Friend Request",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/user-relations",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "\"target-uuid-here\""
+          "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/user-relations/block",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations", "block"]
-        }
+        "description": "Gửi lời mời kết bạn đến một user khác."
       }
     },
     {
-      "name": "Unblock User",
+      "name": "Accept Friend Request",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/user-relations/accept",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "\"target-uuid-here\""
+          "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/user-relations/unblock",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations", "unblock"]
-        }
+        "description": "Chấp nhận lời mời kết bạn từ một user (targetId là người đã gửi lời mời)."
       }
     },
     {
       "name": "Unfriend",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/user-relations/unfriend",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "\"target-uuid-here\""
+          "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/user-relations/unfriend",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations", "unfriend"]
-        }
+        "description": "Hủy kết bạn với một user."
       }
     },
     {
-      "name": "Accept User",
+      "name": "Block User",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/user-relations/block",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "\"target-uuid-here\""
+          "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/user-relations/accept",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "user-relations", "accept"]
-        }
+        "description": "Chặn một user. User bị chặn sẽ không thể gửi tin nhắn hay kết bạn."
       }
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
     },
     {
-      "key": "accessToken",
-      "value": "your-access-token"
+      "name": "Unblock User",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/user-relations/unblock",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+        },
+        "description": "Bỏ chặn một user."
+      }
     }
   ]
 }

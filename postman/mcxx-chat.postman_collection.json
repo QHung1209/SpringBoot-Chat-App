@@ -1,0 +1,556 @@
+{
+  "info": {
+    "name": "mcxx-chat API",
+    "_postman_id": "mcxx-chat-collection",
+    "description": "REST API documentation for mcxx-chat application. Base URL: http://localhost:8080/api/v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",        "value": "http://localhost:8080/api/v1" },
+    { "key": "accessToken",    "value": "" },
+    { "key": "refreshToken",   "value": "" },
+    { "key": "userId",         "value": "" },
+    { "key": "conversationId", "value": "" },
+    { "key": "messageId",      "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('accessToken',  res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/register",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "X-Device-Id",   "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "description": "Optional. UUID of device. Auto-generated if not provided." },
+              { "key": "X-Device-Name", "value": "Chrome on Windows", "description": "Optional" },
+              { "key": "X-OS",          "value": "Windows",           "description": "Optional" },
+              { "key": "X-Browser",     "value": "Chrome",            "description": "Optional" },
+              { "key": "X-IP-Address",  "value": "127.0.0.1",         "description": "Optional" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe123\",\n  \"password\": \"password123\",\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('accessToken',  res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "X-Device-Id",   "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "description": "Optional" },
+              { "key": "X-Device-Name", "value": "Chrome on Windows", "description": "Optional" },
+              { "key": "X-OS",          "value": "Windows",           "description": "Optional" },
+              { "key": "X-Browser",     "value": "Chrome",            "description": "Optional" },
+              { "key": "X-IP-Address",  "value": "127.0.0.1",         "description": "Optional" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe123\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Tokens",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('accessToken',  res.data.accessToken);",
+                  "  pm.collectionVariables.set('refreshToken', res.data.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout (current device)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/me/logout"
+          }
+        },
+        {
+          "name": "Logout All Devices",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/me/logout-all"
+          }
+        },
+        {
+          "name": "Get My Devices",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me/devices"
+          }
+        },
+        {
+          "name": "Kick Device",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/devices/:deviceId",
+              "variable": [{ "key": "deviceId", "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 Users",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/users/me"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users/me",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe Updated\",\n  \"avatarUrl\": \"https://example.com/avatar.jpg\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/search?q=john&cursor=",
+              "query": [
+                { "key": "q",      "value": "john", "description": "Search keyword (username or fullName)" },
+                { "key": "cursor", "value": "",      "description": "Optional. UUID of last user from previous page (cursor-based pagination)." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/:userId",
+              "variable": [{ "key": "userId", "value": "{{userId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/users/change-password",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"newpassword456\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💬 Conversations",
+      "item": [
+        {
+          "name": "Get My Conversations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/conversations?updatedTime=",
+              "query": [
+                { "key": "updatedTime", "value": "", "description": "Optional. ISO-8601 Instant (e.g. 2024-01-01T00:00:00Z). Returns conversations updated after this time." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Conversation Detail",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            }
+          }
+        },
+        {
+          "name": "Get Messages in Conversation",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/messages?cursor=",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }],
+              "query": [
+                { "key": "cursor", "value": "", "description": "Optional. ISO-8601 Instant. Returns messages before this timestamp (cursor-based pagination)." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Direct Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('conversationId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/conversations/create-direct",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otherUserId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Group Conversation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('conversationId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/conversations/create-group",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Project Team\",\n  \"memberIds\": [\n    \"00000000-0000-0000-0000-000000000001\",\n    \"00000000-0000-0000-0000-000000000002\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Group Info",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Group Name\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Conversation Members",
+      "item": [
+        {
+          "name": "Get Members",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/members?createdAt=",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }],
+              "query": [
+                { "key": "createdAt", "value": "", "description": "Optional. ISO-8601 Instant. Returns members created after this timestamp (cursor-based pagination, page size = 30)." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Members",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/members/add",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberIds\": [\n    \"00000000-0000-0000-0000-000000000003\",\n    \"00000000-0000-0000-0000-000000000004\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Member",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/members/remove",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Leave Conversation",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/members/leave",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Member Role",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/conversations/:conversationId/members/update-role",
+              "variable": [{ "key": "conversationId", "value": "{{conversationId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"{{userId}}\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "description": "role: ADMIN | MEMBER"
+          }
+        }
+      ]
+    },
+    {
+      "name": "✉️ Messages",
+      "item": [
+        {
+          "name": "Send Message (to Conversation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data) {",
+                  "  pm.collectionVariables.set('messageId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/messages",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"content\": \"Hello!\",\n  \"type\": \"TEXT\",\n  \"replyToMessageId\": null,\n  \"mediaId\": null\n}"
+            },
+            "description": "type values: TEXT | IMAGE | FILE | VIDEO | AUDIO\nEither conversationId or receiverId must be provided."
+          }
+        },
+        {
+          "name": "Send Message (to User — Direct)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/messages",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receiverId\": \"{{userId}}\",\n  \"content\": \"Hey!\",\n  \"type\": \"TEXT\"\n}"
+            },
+            "description": "Send directly to a user. A direct conversation will be created automatically if one doesn't exist."
+          }
+        },
+        {
+          "name": "Delete Message",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/messages/:messageId",
+              "variable": [{ "key": "messageId", "value": "{{messageId}}" }]
+            }
+          }
+        },
+        {
+          "name": "React to Message",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/messages/:messageId/reactions",
+              "variable": [{ "key": "messageId", "value": "{{messageId}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reaction\": \"❤️\"\n}"
+            },
+            "description": "Toggle reaction on a message. If the same reaction already exists for this user, it will be removed. Returns updated list of reactions."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤝 User Relations",
+      "item": [
+        {
+          "name": "Get Relations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/user-relations?status=FRIEND&relationId=",
+              "query": [
+                { "key": "status",     "value": "FRIEND", "description": "Filter by status: PENDING | FRIEND | BLOCKED" },
+                { "key": "relationId", "value": "",        "description": "Optional. UUID of last relation for cursor-based pagination." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Sent Requests",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/user-relations/my-requests?relationId=",
+              "query": [
+                { "key": "relationId", "value": "", "description": "Optional. UUID for cursor-based pagination." }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Friend Request",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/user-relations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/user-relations/accept",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Unfriend",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/user-relations/unfriend",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Block User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/user-relations/block",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Unblock User",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/user-relations/unblock",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetId\": \"{{userId}}\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

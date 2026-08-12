@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "mcxx-chat / Users",
+    "_postman_id": "mcxx-users",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Get My Profile",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/users/me",
+        "description": "Lấy thông tin profile của user đang đăng nhập."
+      }
+    },
+    {
+      "name": "Update My Profile",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/users/me",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"John Doe Updated\",\n  \"avatarUrl\": \"https://example.com/avatar.jpg\"\n}"
+        },
+        "description": "Cập nhật thông tin profile."
+      }
+    },
+    {
+      "name": "Search Users",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/users/search?q=john&cursor=",
+          "query": [
+            {
+              "key": "q",
+              "value": "john",
+              "description": "Từ khóa tìm kiếm (username hoặc fullName)"
+            },
+            {
+              "key": "cursor",
+              "value": "",
+              "description": "Optional. UUID của user cuối cùng từ trang trước (cursor-based pagination)."
+            }
+          ]
+        },
+        "description": "Tìm kiếm user theo username hoặc fullName. Cursor-based pagination."
+      }
+    },
+    {
+      "name": "Get User Profile",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/users/:userId",
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{userId}}",
+              "description": "UUID của user cần xem"
+            }
+          ]
+        },
+        "description": "Lấy thông tin profile của một user bất kỳ."
+      }
+    },
+    {
+      "name": "Change Password",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/users/change-password",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"newpassword456\"\n}"
+        },
+        "description": "Đổi mật khẩu. Yêu cầu mật khẩu cũ để xác thực."
+      }
+    }
+  ]
+}

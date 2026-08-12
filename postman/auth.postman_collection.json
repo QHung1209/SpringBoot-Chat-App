@@ -1,6 +1,7 @@
 {
   "info": {
-    "name": "Auth API",
+    "name": "mcxx-chat / Auth",
+    "_postman_id": "mcxx-auth",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -11,38 +12,32 @@
           "listen": "test",
           "script": {
             "exec": [
-              "if (pm.response.code === 201 || pm.response.code === 200) {",
-              "    var data = pm.response.json();",
-              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
-              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('accessToken',  res.data.accessToken);",
+              "  pm.environment.set('refreshToken', res.data.refreshToken);",
               "}"
-            ],
-            "type": "text/javascript"
+            ]
           }
         }
       ],
       "request": {
-        "auth": {
-          "type": "noauth"
-        },
+        "auth": { "type": "noauth" },
         "method": "POST",
+        "url": "{{baseUrl}}/auth/register",
         "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "User-Agent", "value": "Postman" },
-          { "key": "X-IP-Address", "value": "127.0.0.1" },
-          { "key": "X-Device-Name", "value": "My-PC" },
-          { "key": "X-OS", "value": "Windows" },
-          { "key": "X-Browser", "value": "Chrome" }
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "X-Device-Id",   "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "description": "Optional. UUID của device. Tự sinh nếu không truyền." },
+          { "key": "X-Device-Name", "value": "Chrome on Windows", "description": "Optional" },
+          { "key": "X-OS",          "value": "Windows",           "description": "Optional" },
+          { "key": "X-Browser",     "value": "Chrome",            "description": "Optional" },
+          { "key": "X-IP-Address",  "value": "127.0.0.1",         "description": "Optional" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\",\n    \"fullName\": \"Test User\",\n    \"email\": \"test@example.com\"\n}"
+          "raw": "{\n  \"username\": \"johndoe123\",\n  \"password\": \"password123\",\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@example.com\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/register",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "register"]
-        }
+        "description": "Đăng ký tài khoản mới.\n\n**Validation:**\n- username: 8–255 ký tự\n- password: 8–255 ký tự\n- fullName: 6–255 ký tự\n- email: định dạng email hợp lệ"
       }
     },
     {
@@ -52,148 +47,99 @@
           "listen": "test",
           "script": {
             "exec": [
-              "if (pm.response.code === 200) {",
-              "    var data = pm.response.json();",
-              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
-              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('accessToken',  res.data.accessToken);",
+              "  pm.environment.set('refreshToken', res.data.refreshToken);",
               "}"
-            ],
-            "type": "text/javascript"
+            ]
           }
         }
       ],
       "request": {
-        "auth": {
-          "type": "noauth"
-        },
+        "auth": { "type": "noauth" },
         "method": "POST",
+        "url": "{{baseUrl}}/auth/login",
         "header": [
-          { "key": "Content-Type", "value": "application/json" },
-          { "key": "User-Agent", "value": "Postman" },
-          { "key": "X-IP-Address", "value": "127.0.0.1" },
-          { "key": "X-Device-Name", "value": "My-PC" },
-          { "key": "X-OS", "value": "Windows" },
-          { "key": "X-Browser", "value": "Chrome" }
+          { "key": "Content-Type",  "value": "application/json" },
+          { "key": "X-Device-Id",   "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "description": "Optional" },
+          { "key": "X-Device-Name", "value": "Chrome on Windows", "description": "Optional" },
+          { "key": "X-OS",          "value": "Windows",           "description": "Optional" },
+          { "key": "X-Browser",     "value": "Chrome",            "description": "Optional" },
+          { "key": "X-IP-Address",  "value": "127.0.0.1",         "description": "Optional" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/login",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "login"]
+          "raw": "{\n  \"username\": \"johndoe123\",\n  \"password\": \"password123\"\n}"
         }
       }
     },
     {
-      "name": "Refresh Token",
+      "name": "Refresh Tokens",
       "event": [
         {
           "listen": "test",
           "script": {
             "exec": [
-              "if (pm.response.code === 200) {",
-              "    var data = pm.response.json();",
-              "    if (data.accessToken) pm.collectionVariables.set(\"accessToken\", data.accessToken);",
-              "    if (data.refreshToken) pm.collectionVariables.set(\"refreshToken\", data.refreshToken);",
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('accessToken',  res.data.accessToken);",
+              "  pm.environment.set('refreshToken', res.data.refreshToken);",
               "}"
-            ],
-            "type": "text/javascript"
+            ]
           }
         }
       ],
       "request": {
+        "auth": { "type": "noauth" },
         "method": "POST",
-        "header": [
-          { "key": "Content-Type", "value": "application/json" }
-        ],
+        "url": "{{baseUrl}}/auth/refresh",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+          "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/refresh",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "refresh"]
-        }
+        "description": "Lấy cặp token mới bằng refreshToken. Không cần Bearer header."
       }
     },
     {
-      "name": "Logout",
+      "name": "Logout (current device)",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/me/logout",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "me", "logout"]
-        }
+        "url": "{{baseUrl}}/auth/me/logout",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "description": "Đăng xuất thiết bị hiện tại (vô hiệu hóa token của device đang dùng)."
       }
     },
     {
-      "name": "Logout All",
+      "name": "Logout All Devices",
       "request": {
         "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/me/logout-all",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "me", "logout-all"]
-        }
+        "url": "{{baseUrl}}/auth/me/logout-all",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "description": "Đăng xuất tất cả thiết bị (vô hiệu hóa toàn bộ token của user)."
       }
     },
     {
-      "name": "Get Devices",
+      "name": "Get My Devices",
       "request": {
         "method": "GET",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/me/devices",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "me", "devices"]
-        }
+        "url": "{{baseUrl}}/auth/me/devices",
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "description": "Lấy danh sách thiết bị đang đăng nhập."
       }
     },
     {
-      "name": "Kickout Device",
+      "name": "Kick Device",
       "request": {
         "method": "DELETE",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{accessToken}}" }
-        ],
         "url": {
-          "raw": "{{baseUrl}}/api/v1/auth/me/devices/:deviceId",
-          "host": ["{{baseUrl}}"],
-          "path": ["api", "v1", "auth", "me", "devices", ":deviceId"],
-          "variable": [
-            {
-              "key": "deviceId",
-              "value": "device-uuid-here"
-            }
-          ]
-        }
+          "raw": "{{baseUrl}}/auth/me/devices/:deviceId",
+          "variable": [{ "key": "deviceId", "value": "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "description": "UUID của device cần kick" }]
+        },
+        "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+        "description": "Đăng xuất (kick) một thiết bị cụ thể theo deviceId."
       }
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "accessToken",
-      "value": "your-access-token"
-    },
-    {
-      "key": "refreshToken",
-      "value": "your-refresh-token"
     }
   ]
 }

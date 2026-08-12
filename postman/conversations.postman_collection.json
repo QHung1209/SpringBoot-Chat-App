@@ -1,0 +1,133 @@
+{
+  "info": {
+    "name": "mcxx-chat / Conversations",
+    "_postman_id": "mcxx-conversations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Get My Conversations",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/conversations?updatedTime=",
+          "query": [
+            {
+              "key": "updatedTime",
+              "value": "",
+              "description": "Optional. ISO-8601 Instant (e.g. 2024-01-01T00:00:00Z). Trả về các conversation được cập nhật sau thời điểm này."
+            }
+          ]
+        },
+        "description": "Lấy danh sách conversation của user đang đăng nhập, sắp xếp theo thời gian cập nhật."
+      }
+    },
+    {
+      "name": "Get Conversation Detail",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "description": "Lấy thông tin chi tiết của một conversation."
+      }
+    },
+    {
+      "name": "Get Messages in Conversation",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/messages?cursor=",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ],
+          "query": [
+            {
+              "key": "cursor",
+              "value": "",
+              "description": "Optional. ISO-8601 Instant. Trả về các message trước thời điểm này (cursor-based pagination, tải thêm tin nhắn cũ hơn)."
+            }
+          ]
+        },
+        "description": "Lấy danh sách tin nhắn trong conversation. Cursor-based pagination ngược thời gian."
+      }
+    },
+    {
+      "name": "Create Direct Conversation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('conversationId', res.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/conversations/create-direct",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"otherUserId\": \"{{userId}}\"\n}"
+        },
+        "description": "Tạo conversation direct (1-1) với một user khác. Nếu conversation giữa 2 user đã tồn tại thì trả về conversation cũ."
+      }
+    },
+    {
+      "name": "Create Group Conversation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('conversationId', res.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/conversations/create-group",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Project Team\",\n  \"memberIds\": [\n    \"00000000-0000-0000-0000-000000000001\",\n    \"00000000-0000-0000-0000-000000000002\"\n  ]\n}"
+        },
+        "description": "Tạo group conversation.\n\n**Validation:**\n- name: bắt buộc, tối đa 100 ký tự\n- memberIds: danh sách UUID của các thành viên ban đầu (không bắt buộc, người tạo tự động là ADMIN)"
+      }
+    },
+    {
+      "name": "Update Group Info",
+      "request": {
+        "method": "PUT",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"New Group Name\"\n}"
+        },
+        "description": "Cập nhật thông tin group (tên, ảnh đại diện, ...)."
+      }
+    }
+  ]
+}

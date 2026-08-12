@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "mcxx-chat / Conversation Members",
+    "_postman_id": "mcxx-conv-members",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Get Members",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/members?createdAt=",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ],
+          "query": [
+            {
+              "key": "createdAt",
+              "value": "",
+              "description": "Optional. ISO-8601 Instant. Trả về các member tham gia sau thời điểm này (cursor-based pagination, page size = 30)."
+            }
+          ]
+        },
+        "description": "Lấy danh sách thành viên của conversation. Cursor-based pagination theo createdAt."
+      }
+    },
+    {
+      "name": "Add Members",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/members/add",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"memberIds\": [\n    \"00000000-0000-0000-0000-000000000003\",\n    \"00000000-0000-0000-0000-000000000004\"\n  ]\n}"
+        },
+        "description": "Thêm một hoặc nhiều thành viên vào conversation. Chỉ ADMIN mới có quyền thực hiện."
+      }
+    },
+    {
+      "name": "Remove Member",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/members/remove",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"memberId\": \"{{userId}}\"\n}"
+        },
+        "description": "Xóa một thành viên khỏi conversation. Chỉ ADMIN mới có quyền thực hiện."
+      }
+    },
+    {
+      "name": "Leave Conversation",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/members/leave",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"memberId\": \"{{userId}}\"\n}"
+        },
+        "description": "Rời khỏi conversation. Nếu người rời là ADMIN duy nhất, hệ thống tự động chuyển quyền ADMIN cho thành viên khác. Nếu là thành viên cuối cùng, conversation sẽ bị xóa."
+      }
+    },
+    {
+      "name": "Update Member Role",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/members/update-role",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"memberId\": \"{{userId}}\",\n  \"role\": \"ADMIN\"\n}"
+        },
+        "description": "Cập nhật role của một thành viên.\n\n**role values:** `ADMIN` | `MEMBER`"
+      }
+    }
+  ]
+}

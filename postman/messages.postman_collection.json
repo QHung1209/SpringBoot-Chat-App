@@ -1,0 +1,105 @@
+{
+  "info": {
+    "name": "mcxx-chat / Messages",
+    "_postman_id": "mcxx-messages",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Send Message (to Conversation)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('messageId', res.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/messages",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"content\": \"Hello!\",\n  \"type\": \"TEXT\",\n  \"replyToMessageId\": null,\n  \"mediaId\": null\n}"
+        },
+        "description": "Gửi tin nhắn vào một conversation đã có.\n\n**type values:** `TEXT` | `IMAGE` | `FILE` | `VIDEO` | `AUDIO`\n\nMột trong hai phải được truyền: `conversationId` hoặc `receiverId`."
+      }
+    },
+    {
+      "name": "Send Message (to User — Direct)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const res = pm.response.json();",
+              "if (res.data) {",
+              "  pm.environment.set('messageId', res.data.id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/messages",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"receiverId\": \"{{userId}}\",\n  \"content\": \"Hey!\",\n  \"type\": \"TEXT\"\n}"
+        },
+        "description": "Gửi tin nhắn trực tiếp đến một user. Nếu chưa có direct conversation giữa 2 người, hệ thống tự tạo."
+      }
+    },
+    {
+      "name": "Send Message with Reply",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/messages",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"conversationId\": \"{{conversationId}}\",\n  \"content\": \"Got it!\",\n  \"type\": \"TEXT\",\n  \"replyToMessageId\": \"{{messageId}}\"\n}"
+        },
+        "description": "Gửi tin nhắn reply vào một message khác."
+      }
+    },
+    {
+      "name": "Delete Message",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/messages/:messageId",
+          "variable": [{ "key": "messageId", "value": "{{messageId}}" }]
+        },
+        "description": "Xóa tin nhắn. Chỉ người gửi mới có quyền xóa."
+      }
+    },
+    {
+      "name": "React to Message",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/messages/:messageId/reactions",
+          "variable": [{ "key": "messageId", "value": "{{messageId}}" }]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reaction\": \"❤️\"\n}"
+        },
+        "description": "Toggle reaction trên một message. Nếu user đã react cùng emoji đó → xóa reaction (toggle). Trả về danh sách reaction cập nhật."
+      }
+    }
+  ]
+}
