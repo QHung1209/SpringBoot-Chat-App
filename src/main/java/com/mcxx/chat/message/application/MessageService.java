@@ -2,6 +2,7 @@ package com.mcxx.chat.message.application;
 
 import com.mcxx.chat.conversation.domain.Conversation;
 import com.mcxx.chat.message.repository.MessageRepository;
+import com.mcxx.chat.message.repository.MessageWithReplyProjection;
 import com.mcxx.chat.message.domain.Message;
 import java.time.Instant;
 import java.util.List;
@@ -35,10 +36,10 @@ public class MessageService {
       throw new BadRequestException("Invalid conversation");
     }
 
-    List<Message> messages =
+    List<MessageWithReplyProjection> messages =
         messageRepository.findByConversationIdOrderByUpdatedAtDesc(conversationId, updatedAt);
 
-    List<UUID> messageIds = messages.stream().map(Message::getId).toList();
+    List<UUID> messageIds = messages.stream().map(MessageWithReplyProjection::getId).toList();
 
     Map<UUID, List<ReactionResponse>> reactionsByMessage =
         messageReactionService.getReactions(messageIds, userId).stream()
@@ -62,6 +63,14 @@ public class MessageService {
         throw new BadRequestException("Invalid conversation");
       }
     }
+    if (request.getReplyToMessageId() != null) {
+      Message replyTarget = messageRepository.findById(request.getReplyToMessageId())
+          .orElseThrow(() -> new BadRequestException("Invalid reply target message"));
+      if (!replyTarget.getConversationId().equals(conv.getId())) {
+        throw new BadRequestException("Cannot reply to a message from a different conversation");
+      }
+    }
+
     Message message = new Message();
     message.setConversationId(conv.getId());
     message.setSenderId(senderId);

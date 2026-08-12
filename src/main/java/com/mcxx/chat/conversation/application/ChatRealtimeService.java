@@ -18,16 +18,22 @@ public class ChatRealtimeService {
 
   private final SimpMessagingTemplate messagingTemplate;
   private final ConversationMemberService conversationMemberService;
+  private final com.mcxx.chat.message.repository.MessageRepository messageRepository;
 
   public void publishMessage(Message message) {
-    messagingTemplate.convertAndSend("/topic/conversations/" + message.getConversationId(),
-        MessageResponse.from(message));
+    Message replyTarget = null;
+    if (message.getReplyToMessageId() != null) {
+      replyTarget = messageRepository.findById(message.getReplyToMessageId()).orElse(null);
+    }
+    MessageResponse payload = MessageResponse.from(message, replyTarget);
+
+    messagingTemplate.convertAndSend("/topic/conversations/" + message.getConversationId(), payload);
 
     List<UUID> memberIds = conversationMemberService.getMemberIds(message.getConversationId());
 
     memberIds.stream().filter(id -> !id.equals(message.getSenderId())).forEach(id -> {
       messagingTemplate.convertAndSendToUser(id.toString(),
-          "/queue/conversations/" + message.getConversationId(), MessageResponse.from(message));
+          "/queue/conversations/" + message.getConversationId(), payload);
     });
   }
 
