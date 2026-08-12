@@ -1,5 +1,7 @@
-package com.mcxx.chat.user;
+package com.mcxx.chat.user.application;
 
+import com.mcxx.chat.user.repository.UserRepository;
+import com.mcxx.chat.user.domain.User;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -7,10 +9,10 @@ import org.springframework.stereotype.Service;
 import com.mcxx.chat.common.exception.BadRequestException;
 import com.mcxx.chat.common.exception.ConflictException;
 import com.mcxx.chat.common.exception.NotFoundException;
-import com.mcxx.chat.user.dto.ChangePasswordRequest;
-import com.mcxx.chat.user.dto.UpdateProfileRequest;
-import com.mcxx.chat.user.dto.UserBasicInfo;
-import com.mcxx.chat.user.dto.UserResponse;
+import com.mcxx.chat.user.dto.request.ChangePasswordRequest;
+import com.mcxx.chat.user.dto.request.UpdateProfileRequest;
+import com.mcxx.chat.user.dto.response.UserResponse;
+import com.mcxx.chat.user.dto.response.UserSearchView;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -19,8 +21,8 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
-  public List<UserBasicInfo> searchUsers(String search, UUID currentUserId) {
-    return userRepository.searchUsers(search, currentUserId);
+  public List<UserSearchView> searchUsers(UUID currentUserId, String search, UUID cursor) {
+    return userRepository.searchUsers(currentUserId, search, cursor);
   }
 
   public User getUserById(UUID userId) {

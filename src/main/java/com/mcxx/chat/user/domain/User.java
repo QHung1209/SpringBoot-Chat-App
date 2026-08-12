@@ -1,4 +1,4 @@
-package com.mcxx.chat.user;
+package com.mcxx.chat.user.domain;
 
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;

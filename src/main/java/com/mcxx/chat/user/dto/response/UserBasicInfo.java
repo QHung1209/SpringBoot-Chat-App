@@ -1,4 +1,4 @@
-package com.mcxx.chat.user.dto;
+package com.mcxx.chat.user.dto.response;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;

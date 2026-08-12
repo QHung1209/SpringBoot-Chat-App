@@ -1,7 +1,7 @@
-package com.mcxx.chat.user;
+package com.mcxx.chat.user.api;
 
+import com.mcxx.chat.user.application.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.mcxx.chat.auth.dto.AuthUser;
+import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
-import com.mcxx.chat.user.dto.ChangePasswordRequest;
-import com.mcxx.chat.user.dto.UpdateProfileRequest;
-import com.mcxx.chat.user.dto.UserBasicInfo;
-import com.mcxx.chat.user.dto.UserResponse;
+import com.mcxx.chat.user.dto.request.ChangePasswordRequest;
+import com.mcxx.chat.user.dto.request.UpdateProfileRequest;
+import com.mcxx.chat.user.dto.response.UserResponse;
+import com.mcxx.chat.user.dto.response.UserSearchView;
 import jakarta.validation.Valid;
 
 @RestController
@@ -41,10 +41,11 @@ public class UserController {
   }
 
   @GetMapping("/search")
-  public ResponseEntity<ApiResponse<List<UserBasicInfo>>> searchUsers(
+  public ResponseEntity<ApiResponse<List<UserSearchView>>> searchUsers(
       @AuthenticationPrincipal AuthUser authUser, @RequestParam(required = false) String q,
       @RequestParam(required = false) UUID cursor) {
-    return ResponseEntity.ok(ApiResponse.success(200, userService.searchUsers(q, cursor)));
+    return ResponseEntity
+        .ok(ApiResponse.success(200, userService.searchUsers(authUser.getId(), q, cursor)));
   }
 
   @GetMapping("/{userId}")

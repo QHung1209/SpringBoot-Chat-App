@@ -1,5 +1,5 @@
 // src/main/java/com/mcxx/chat/user/dto/UpdateProfileRequest.java
-package com.mcxx.chat.user.dto;
+package com.mcxx.chat.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;

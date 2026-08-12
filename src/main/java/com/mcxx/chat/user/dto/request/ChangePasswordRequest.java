@@ -1,4 +1,4 @@
-package com.mcxx.chat.user.dto;
+package com.mcxx.chat.user.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

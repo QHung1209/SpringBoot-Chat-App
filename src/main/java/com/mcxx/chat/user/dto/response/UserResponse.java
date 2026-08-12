@@ -1,8 +1,8 @@
-package com.mcxx.chat.user.dto;
+package com.mcxx.chat.user.dto.response;
 
 import java.util.UUID;
 
-import com.mcxx.chat.user.User;
+import com.mcxx.chat.user.domain.User;
 
 public record UserResponse(UUID id, String username, String fullName, String email,
     String phoneNumber, String avatarUrl, String bio) {
