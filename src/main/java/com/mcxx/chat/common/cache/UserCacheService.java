@@ -4,9 +4,9 @@ import java.util.UUID;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import com.mcxx.chat.user.User;
-import com.mcxx.chat.user.UserRepository;
-import com.mcxx.chat.user.dto.UserBasicInfo;
+import com.mcxx.chat.user.domain.User;
+import com.mcxx.chat.user.repository.UserRepository;
+import com.mcxx.chat.user.dto.response.UserBasicInfo;
 import lombok.RequiredArgsConstructor;
 
 @Service

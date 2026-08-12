@@ -41,6 +41,7 @@ public class SecurityConfig {
     http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login", "/api/v1/auth/refresh",
+                "/api/v1/ws", "/api/v1/ws/**",
                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error")
             .permitAll().anyRequest().authenticated())
         .cors(Customizer.withDefaults()).oauth2ResourceServer(
