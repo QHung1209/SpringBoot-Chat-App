@@ -1,0 +1,34 @@
+package com.mcxx.chat.chat.api;
+
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import com.mcxx.chat.auth.dto.response.AuthUser;
+import com.mcxx.chat.common.dto.ApiResponse;
+import com.mcxx.chat.chat.application.MessageReactionService;
+import com.mcxx.chat.chat.dto.request.ReactionRequest;
+import com.mcxx.chat.chat.dto.response.ReactionResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1/messages/{messageId}/reactions")
+@RequiredArgsConstructor
+public class MessageReactionController {
+  private final MessageReactionService messageReactionService;
+
+  @PostMapping
+  public ResponseEntity<ApiResponse<List<ReactionResponse>>> react(
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID messageId,
+      @Valid @RequestBody ReactionRequest request) {
+    return ResponseEntity.ok(ApiResponse.success(200,
+        messageReactionService.react(messageId, authUser.getId(), request.getReaction())));
+  }
+
+}

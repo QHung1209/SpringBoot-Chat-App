@@ -1,0 +1,75 @@
+package com.mcxx.chat.chat.dto.response;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import com.mcxx.chat.chat.domain.Message;
+import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
+import lombok.Data;
+
+@Data
+public class MessageResponse {
+  private UUID id;
+  private UUID conversationId;
+  private UUID senderId;
+  private String type;
+  private String content;
+  private MessageResponse replyToMessage;
+  private UUID mediaId;
+  private Boolean isPinned;
+  private Instant createdAt;
+  private Instant updatedAt;
+  private Instant deletedAt;
+  private List<ReactionResponse> reactions;
+
+  public static MessageResponse from(Message message) {
+    return from(message, null);
+  }
+
+  public static MessageResponse from(Message message, Message replyMessage) {
+    MessageResponse resp = new MessageResponse();
+    resp.setId(message.getId());
+    resp.setConversationId(message.getConversationId());
+    resp.setSenderId(message.getSenderId());
+    resp.setType(message.getType());
+    resp.setContent(message.getDeletedAt() != null ? null : message.getContent());
+    resp.setMediaId(message.getMediaId());
+    resp.setIsPinned(message.getIsPinned());
+    resp.setCreatedAt(message.getCreatedAt());
+    resp.setUpdatedAt(message.getUpdatedAt());
+    resp.setDeletedAt(message.getDeletedAt());
+
+    if (replyMessage != null) {
+      resp.setReplyToMessage(from(replyMessage, null));
+    }
+    return resp;
+  }
+
+  public static MessageResponse from(MessageWithReplyProjection p) {
+    MessageResponse resp = new MessageResponse();
+    resp.setId(p.getId());
+    resp.setConversationId(p.getConversationId());
+    resp.setSenderId(p.getSenderId());
+    resp.setType(p.getType());
+    resp.setContent(p.getDeletedAt() != null ? null : p.getContent());
+    resp.setMediaId(p.getMediaId());
+    resp.setIsPinned(p.getIsPinned());
+    resp.setCreatedAt(p.getCreatedAt());
+    resp.setUpdatedAt(p.getUpdatedAt());
+    resp.setDeletedAt(p.getDeletedAt());
+
+    if (p.getReplyId() != null) {
+      MessageResponse reply = new MessageResponse();
+      reply.setId(p.getReplyId());
+      reply.setConversationId(p.getConversationId());
+      reply.setSenderId(p.getReplySenderId());
+      reply.setType(p.getReplyType());
+      reply.setContent(p.getReplyDeletedAt() != null ? null : p.getReplyContent());
+      reply.setMediaId(p.getReplyMediaId());
+      reply.setCreatedAt(p.getReplyCreatedAt());
+      reply.setDeletedAt(p.getReplyDeletedAt());
+      resp.setReplyToMessage(reply);
+    }
+    return resp;
+  }
+}

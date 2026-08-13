@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.auth.jwt.JwtAuthConverter;
-import com.mcxx.chat.conversation.application.ConversationMemberService;
+import com.mcxx.chat.chat.application.ConversationMemberService;
 import lombok.RequiredArgsConstructor;
 
 @Component
