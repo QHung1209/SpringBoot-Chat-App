@@ -2,10 +2,13 @@ package com.mcxx.chat.chat.application;
 
 import com.mcxx.chat.chat.domain.Conversation;
 import com.mcxx.chat.chat.domain.Message;
+import com.mcxx.chat.chat.dto.request.CreateMessage;
 import com.mcxx.chat.chat.dto.request.SendMessageRequest;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
 import com.mcxx.chat.chat.dto.response.ReactionResponse;
 import com.mcxx.chat.chat.event.MessageCreatedEvent;
+import com.mcxx.chat.chat.event.MessageDeletedEvent;
+import com.mcxx.chat.chat.event.MessageSeenEvent;
 import com.mcxx.chat.chat.repository.MessageRepository;
 import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
 import java.time.Instant;
@@ -43,6 +46,10 @@ public class MessageService {
         messageReactionService.getReactions(messageIds, userId).stream()
             .collect(Collectors.groupingBy(ReactionResponse::getMessageId));
 
+    if (!messages.isEmpty()) {
+      this.seenMessage(userId, messages.get(0).getId());
+    }
+
     return messages.stream().map(message -> {
       MessageResponse res = MessageResponse.from(message);
       res.setReactions(reactionsByMessage.getOrDefault(message.getId(), List.of()));
@@ -69,18 +76,37 @@ public class MessageService {
       }
     }
 
+    CreateMessage createMessage = new CreateMessage();
+    createMessage.setConversationId(conv.getId());
+    createMessage.setSenderId(senderId);
+    createMessage.setType(request.getType());
+    createMessage.setContent(request.getContent());
+    createMessage.setReplyToMessageId(request.getReplyToMessageId());
+    createMessage.setMediaId(request.getMediaId());
+    
+    Message message = createMessage(createMessage);
+
+
+    eventPublisher.publishEvent(new MessageCreatedEvent(conv.getId(), message));
+    return message;
+  }
+
+  @Transactional
+  public Message createMessage(CreateMessage request) {
     Message message = new Message();
-    message.setConversationId(conv.getId());
-    message.setSenderId(senderId);
+    message.setConversationId(request.getConversationId());
+    message.setSenderId(request.getSenderId());
     message.setType(request.getType());
     message.setContent(request.getContent());
     message.setReplyToMessageId(request.getReplyToMessageId());
     message.setMediaId(request.getMediaId());
+    message.setMetadata(request.getMetadata());
     message = messageRepository.save(message);
 
-    conversationService.updateLastMessage(conv.getId(), message.getId(), Instant.now());
-    
-    eventPublisher.publishEvent(new MessageCreatedEvent(conv.getId(), message));
+    conversationService.updateLastMessage(request.getConversationId(), message.getId(),
+        Instant.now());
+    this.seenMessage(request.getSenderId(), message.getId());
+
     return message;
   }
 
@@ -94,5 +120,20 @@ public class MessageService {
     message.setContent(null);
     message.setDeletedAt(Instant.now());
     messageRepository.save(message);
+    eventPublisher
+        .publishEvent(new MessageDeletedEvent(message.getConversationId(), messageId, senderId));
+  }
+
+  public void seenMessage(UUID userId, UUID messageId) {
+    Message message = messageRepository.findById(messageId)
+        .orElseThrow(() -> new BadRequestException("Invalid message"));
+
+    if (!conversationMemberService.isMember(message.getConversationId(), userId)) {
+      throw new ForbiddenException(Message.class, messageId);
+    }
+    conversationMemberService.seenMessage(message.getConversationId(), userId, messageId);
+
+    eventPublisher
+        .publishEvent(new MessageSeenEvent(message.getConversationId(), messageId, userId));
   }
 }

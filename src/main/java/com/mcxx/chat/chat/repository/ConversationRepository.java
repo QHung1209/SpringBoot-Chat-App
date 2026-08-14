@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ConversationRepository extends JpaRepository<Conversation, UUID> {
@@ -44,5 +45,14 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
       """, nativeQuery = true)
   List<ConversationMessageProjection> getConversations(UUID userId, Instant updatedTime);
 
+  @Modifying
+  @Query(value = """
+      UPDATE conversations
+      SET 
+        last_message_id = :messageId,
+        updated_at = now()
+      WHERE id = :conversationId
+      """, nativeQuery = true)
+  void updateLastMessageId(UUID conversationId, UUID messageId);
 
 }

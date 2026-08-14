@@ -16,7 +16,7 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                 m.conversation_id AS conversationId,
                 m.sender_id AS senderId,
                 m.type,
-                m.metadata,
+                CAST(m.metadata AS text) AS metadata,
                 m.media_id AS mediaId,
                 m.is_pinned AS isPinned,
                 m.deleted_at AS deletedAt,

@@ -3,12 +3,16 @@ package com.mcxx.chat.chat.dto.response;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcxx.chat.chat.domain.Message;
 import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
 import lombok.Data;
 
 @Data
 public class MessageResponse {
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
   private UUID id;
   private UUID conversationId;
   private UUID senderId;
@@ -17,6 +21,7 @@ public class MessageResponse {
   private MessageResponse replyToMessage;
   private UUID mediaId;
   private Boolean isPinned;
+  private JsonNode metadata;
   private Instant createdAt;
   private Instant updatedAt;
   private Instant deletedAt;
@@ -35,6 +40,7 @@ public class MessageResponse {
     resp.setContent(message.getDeletedAt() != null ? null : message.getContent());
     resp.setMediaId(message.getMediaId());
     resp.setIsPinned(message.getIsPinned());
+    resp.setMetadata(message.getMetadata());
     resp.setCreatedAt(message.getCreatedAt());
     resp.setUpdatedAt(message.getUpdatedAt());
     resp.setDeletedAt(message.getDeletedAt());
@@ -57,6 +63,15 @@ public class MessageResponse {
     resp.setCreatedAt(p.getCreatedAt());
     resp.setUpdatedAt(p.getUpdatedAt());
     resp.setDeletedAt(p.getDeletedAt());
+
+    if (p.getMetadata() != null) {
+      try {
+        resp.setMetadata(OBJECT_MAPPER.readTree(p.getMetadata()));
+      } catch (Exception e) {
+        resp.setMetadata(null);
+      }
+    }
+
 
     if (p.getReplyId() != null) {
       MessageResponse reply = new MessageResponse();

@@ -1,22 +1,27 @@
 package com.mcxx.chat.chat.api;
 
-import com.mcxx.chat.chat.application.ChatRealtimeService;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import com.mcxx.chat.auth.dto.response.AuthUser;
+import com.mcxx.chat.chat.application.ConversationMemberService;
 import com.mcxx.chat.chat.dto.request.TypingRequest;
+import com.mcxx.chat.chat.event.TypingEvent;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
 public class ConversationSocketController {
-  private final ChatRealtimeService chatRealtimeService;
+
+  private final ConversationMemberService conversationMemberService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @MessageMapping("/conversations/{conversationId}/typing")
   public void typing(
@@ -28,6 +33,12 @@ public class ConversationSocketController {
       throw new AccessDeniedException("Unauthenticated websocket message");
     }
 
-    chatRealtimeService.publishTyping(authUser, conversationId, request.typing());
+    if (!conversationMemberService.isMember(conversationId, authUser.getId())) {
+      throw new AccessDeniedException("User is not a member of this conversation");
+    }
+
+    eventPublisher.publishEvent(
+        new TypingEvent(conversationId, authUser.getId(), authUser.getFullName(), request.typing(),
+            Instant.now()));
   }
 }
