@@ -16,4 +16,6 @@ public interface MemberProfileProjection {
   ConversationRole getRole();
 
   Instant getCreatedAt();
+
+  UUID getLastSeenMessageId();
 }

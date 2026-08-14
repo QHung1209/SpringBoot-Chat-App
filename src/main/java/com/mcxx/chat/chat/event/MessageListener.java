@@ -42,7 +42,7 @@ public class MessageListener {
     chatRealtimeService.publishReaction(event);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @EventListener
   public void onMessageSeen(MessageSeenEvent event) {
     chatRealtimeService.publishSeen(event);
   }

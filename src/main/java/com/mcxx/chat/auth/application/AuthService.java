@@ -95,7 +95,9 @@ public class AuthService {
     device.setOs(deviceReq.getOs());
     device.setBrowser(deviceReq.getBrowser());
     device.setName(deviceReq.getName());
-    device.setTokenVersion(device.getTokenVersion() == null ? 0 : device.getTokenVersion() + 1);
+    if (device.getTokenVersion() == null || device.getTokenVersion() == 0) {
+      device.setTokenVersion(1);
+    }
 
     userDeviceRepository.save(device);
 

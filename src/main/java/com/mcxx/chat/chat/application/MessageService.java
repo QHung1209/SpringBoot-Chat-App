@@ -124,6 +124,7 @@ public class MessageService {
         .publishEvent(new MessageDeletedEvent(message.getConversationId(), messageId, senderId));
   }
 
+  @Transactional
   public void seenMessage(UUID userId, UUID messageId) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> new BadRequestException("Invalid message"));

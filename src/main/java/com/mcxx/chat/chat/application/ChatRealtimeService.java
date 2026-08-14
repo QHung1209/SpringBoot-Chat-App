@@ -54,8 +54,8 @@ public class ChatRealtimeService {
     List<UUID> memberIds = conversationMemberService.getMemberIds(message.getConversationId());
 
     memberIds.stream().filter(id -> !id.equals(message.getSenderId())).forEach(id -> {
-      messagingTemplate.convertAndSendToUser(id.toString(),
-          "/queue/conversations/" + message.getConversationId(), payload);
+      messagingTemplate.convertAndSendToUser(id.toString(), "/queue/conversations", payload);
+      messagingTemplate.convertAndSendToUser(id.toString(), "/queue/conversations/" + message.getConversationId(), payload);
     });
   }
 

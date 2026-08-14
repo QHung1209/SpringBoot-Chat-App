@@ -46,7 +46,8 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
                    u.last_name AS "lastName",
                    u.avatar_url AS "avatarUrl",
                    cm.role AS role,
-                   cm.created_at AS "createdAt"
+                   cm.created_at AS "createdAt",
+                   cm.last_read_message_id AS "lastSeenMessageId"
             FROM conversation_members cm
             JOIN users u ON u.id = cm.user_id
             WHERE cm.conversation_id = :conversationId

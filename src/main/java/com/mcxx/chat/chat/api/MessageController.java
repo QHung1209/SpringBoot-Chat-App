@@ -31,6 +31,13 @@ public class MessageController {
     return ResponseEntity.ok(ApiResponse.success(200, MessageResponse.from(message)));
   }
 
+  @PostMapping("/{messageId}/seen")
+  public ResponseEntity<ApiResponse<Void>> seenMessage(@AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID messageId) {
+    messageService.seenMessage(authUser.getId(), messageId);
+    return ResponseEntity.ok(ApiResponse.success(200, null));
+  }
+
   @DeleteMapping("/{messageId}")
   public ResponseEntity<ApiResponse<Void>> deleteMessage(@AuthenticationPrincipal AuthUser authUser,
       @PathVariable UUID messageId) {

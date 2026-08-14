@@ -16,9 +16,10 @@ public class ConversationMemberResponse {
   private String avatarUrl;
   private ConversationRole role;
   private Instant createdAt;
+  private UUID lastSeenMessageId;
 
   public static ConversationMemberResponse from(MemberProfileProjection member) {
     return new ConversationMemberResponse(member.getId(), member.getFirstName(),
-        member.getLastName(), member.getAvatarUrl(), member.getRole(), member.getCreatedAt());
+        member.getLastName(), member.getAvatarUrl(), member.getRole(), member.getCreatedAt(), member.getLastSeenMessageId());
   }
 }
