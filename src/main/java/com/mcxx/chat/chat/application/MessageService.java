@@ -38,7 +38,7 @@ public class MessageService {
     }
 
     List<MessageWithReplyProjection> messages =
-        messageRepository.findByConversationIdOrderByUpdatedAtDesc(conversationId, before, after);
+        messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, before, after);
 
     List<UUID> messageIds = messages.stream().map(MessageWithReplyProjection::getId).toList();
 

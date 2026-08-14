@@ -37,15 +37,15 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             WHERE m.conversation_id = :conversationId
               AND (
                   CAST(:before AS timestamp) IS NULL
-                  OR m.updated_at < CAST(:before AS timestamp)
+                  OR m.created_at < CAST(:before AS timestamp)
               )
               AND (
                   CAST(:after AS timestamp) IS NULL
-                  OR m.updated_at > CAST(:after AS timestamp)
+                  OR m.created_at > CAST(:after AS timestamp)
               )
-            ORDER BY m.updated_at DESC
+            ORDER BY m.created_at DESC
             LIMIT 15
                         """, nativeQuery = true)
-    public List<MessageWithReplyProjection> findByConversationIdOrderByUpdatedAtDesc(
+    public List<MessageWithReplyProjection> findByConversationIdOrderByCreatedAtDesc(
             UUID conversationId, Instant before, Instant after);
 }
