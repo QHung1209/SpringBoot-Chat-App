@@ -47,9 +47,9 @@ public class ConversationService {
 
       conversationMemberRepository.saveAll(List.of(
           new ConversationMember(conversation.getId(), "", user1, ConversationRole.ADMIN, null,
-              null),
+              null,null),
           new ConversationMember(conversation.getId(), "", user2, ConversationRole.MEMBER, null,
-              null)));
+              null,null)));
 
       return conversation;
     } catch (DataIntegrityViolationException e) {
@@ -65,10 +65,10 @@ public class ConversationService {
     Conversation conv = conversationRepository.save(conversation);
     List<ConversationMember> members = request.getMemberIds().stream()
         .map(
-            id -> new ConversationMember(conv.getId(), "", id, ConversationRole.MEMBER, null, null))
+            id -> new ConversationMember(conv.getId(), "", id, ConversationRole.MEMBER, null, null, meId))
         .collect(Collectors.toCollection(ArrayList::new));
 
-    members.add(new ConversationMember(conv.getId(), "", meId, ConversationRole.ADMIN, null, null));
+    members.add(new ConversationMember(conv.getId(), "", meId, ConversationRole.ADMIN, null, null,meId));
     conversationMemberRepository.saveAll(members);
 
     return conv;

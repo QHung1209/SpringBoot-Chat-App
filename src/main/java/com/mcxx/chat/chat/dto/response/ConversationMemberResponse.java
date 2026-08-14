@@ -1,9 +1,9 @@
 package com.mcxx.chat.chat.dto.response;
 
-import com.mcxx.chat.chat.domain.ConversationMember;
 import java.time.Instant;
 import java.util.UUID;
 import com.mcxx.chat.chat.domain.ConversationRole;
+import com.mcxx.chat.chat.repository.MemberProfileProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,18 +11,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ConversationMemberResponse {
   private UUID id;
-  private UUID conversationId;
-  private String name;
-  private UUID userId;
+  private String firstName;
+  private String lastName;
+  private String avatarUrl;
   private ConversationRole role;
-  private UUID hiddenAtMessageId;
-  private UUID lastReadMessageId;
   private Instant createdAt;
-  private Instant updatedAt;
 
-  public static ConversationMemberResponse from(ConversationMember member) {
-    return new ConversationMemberResponse(member.getId(), member.getConversationId(),
-        member.getName(), member.getUserId(), member.getRole(), member.getHiddenAtMessageId(),
-        member.getLastReadMessageId(), member.getCreatedAt(), member.getUpdatedAt());
+  public static ConversationMemberResponse from(MemberProfileProjection member) {
+    return new ConversationMemberResponse(member.getId(), member.getFirstName(),
+        member.getLastName(), member.getAvatarUrl(), member.getRole(), member.getCreatedAt());
   }
 }

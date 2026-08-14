@@ -25,10 +25,12 @@ public class ConversationMember extends BaseEntity {
   private ConversationRole role;
   private UUID hiddenAtMessageId;
   private UUID lastReadMessageId;
+  private UUID createdBy;
 
-  public ConversationMember(UUID conversationId, UUID userId) {
+  public ConversationMember(UUID conversationId, UUID userId, UUID createdBy) {
     this.conversationId = conversationId;
     this.userId = userId;
     this.role = ConversationRole.MEMBER;
+    this.createdBy = createdBy;
   }
 }

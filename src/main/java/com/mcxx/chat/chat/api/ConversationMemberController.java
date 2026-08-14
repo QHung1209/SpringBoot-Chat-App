@@ -1,10 +1,12 @@
 package com.mcxx.chat.chat.api;
 
+import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.chat.application.ConversationMemberService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,23 +37,23 @@ public class ConversationMemberController {
   }
 
   @PostMapping("/add")
-  public ResponseEntity<ApiResponse<Void>> addMember(@PathVariable UUID conversationId,
-      @Valid @RequestBody AddMembersRequest request) {
-    conversationMemberService.addMembers(conversationId, request.getMemberIds());
+  public ResponseEntity<ApiResponse<Void>> addMember(@AuthenticationPrincipal AuthUser user,
+      @PathVariable UUID conversationId, @Valid @RequestBody AddMembersRequest request) {
+    conversationMemberService.addMembers(user.getId(), conversationId, request.getMemberIds());
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @PostMapping("/remove")
-  public ResponseEntity<ApiResponse<Void>> removeMember(@PathVariable UUID conversationId,
-      @Valid @RequestBody MemberIdRequest request) {
-    conversationMemberService.removeMember(conversationId, request.getMemberId());
+  public ResponseEntity<ApiResponse<Void>> removeMember(@AuthenticationPrincipal AuthUser user,
+      @PathVariable UUID conversationId, @Valid @RequestBody MemberIdRequest request) {
+    conversationMemberService.removeMember(user.getId(), conversationId, request.getMemberId());
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @PostMapping("/leave")
-  public ResponseEntity<ApiResponse<Void>> leave(@PathVariable UUID conversationId,
-      @Valid @RequestBody MemberIdRequest request) {
-    conversationMemberService.leaveConversation(conversationId, request.getMemberId());
+  public ResponseEntity<ApiResponse<Void>> leave(@AuthenticationPrincipal AuthUser user,
+      @PathVariable UUID conversationId) {
+    conversationMemberService.leaveConversation(user.getId(), conversationId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
