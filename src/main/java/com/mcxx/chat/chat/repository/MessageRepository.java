@@ -36,12 +36,16 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                 ON rm.id = m.reply_to_message_id
             WHERE m.conversation_id = :conversationId
               AND (
-                  CAST(:updatedAt AS timestamp) IS NULL
-                  OR m.updated_at < CAST(:updatedAt AS timestamp)
+                  CAST(:before AS timestamp) IS NULL
+                  OR m.updated_at < CAST(:before AS timestamp)
+              )
+              AND (
+                  CAST(:after AS timestamp) IS NULL
+                  OR m.updated_at > CAST(:after AS timestamp)
               )
             ORDER BY m.updated_at DESC
             LIMIT 15
                         """, nativeQuery = true)
     public List<MessageWithReplyProjection> findByConversationIdOrderByUpdatedAtDesc(
-            UUID conversationId, Instant updatedAt);
+            UUID conversationId, Instant before, Instant after);
 }

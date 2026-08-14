@@ -32,13 +32,13 @@ public class MessageService {
   private final MessageReactionService messageReactionService;
   private final ApplicationEventPublisher eventPublisher;
 
-  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant updatedAt) {
+  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant before, Instant after) {
     if (!conversationMemberService.isMember(conversationId, userId)) {
       throw new BadRequestException("Invalid conversation");
     }
 
     List<MessageWithReplyProjection> messages =
-        messageRepository.findByConversationIdOrderByUpdatedAtDesc(conversationId, updatedAt);
+        messageRepository.findByConversationIdOrderByUpdatedAtDesc(conversationId, before, after);
 
     List<UUID> messageIds = messages.stream().map(MessageWithReplyProjection::getId).toList();
 

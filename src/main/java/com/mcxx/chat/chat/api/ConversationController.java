@@ -49,10 +49,10 @@ public class ConversationController {
   @GetMapping("/{conversationId}/messages")
   public ResponseEntity<ApiResponse<List<MessageResponse>>> getMessages(
       @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
-      @RequestParam(required = false) Instant cursor) {
+      @RequestParam(required = false) Instant before, @RequestParam(required = false) Instant after) {
     return ResponseEntity
         .ok(ApiResponse.success(200, messageService.getMessages(authUser.getId(), conversationId,
-            cursor)));
+            before, after)));
   }
 
   @PostMapping("/create-direct")
