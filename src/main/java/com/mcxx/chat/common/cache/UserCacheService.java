@@ -17,7 +17,7 @@ public class UserCacheService {
   @Cacheable(value = "userBasic", key = "#id")
   public UserBasicInfo getUserBasicInfo(@NonNull UUID id) {
     User u = userRepository.findById(id).orElseThrow();
-    return new UserBasicInfo(u.getId(), u.getUsername(), u.getFullName(), u.getEmail(),
-        u.getAvatarUrl());
+    return new UserBasicInfo(u.getId(), u.getUsername(), u.getFirstName(), u.getLastName(),
+        u.getFullName(), u.getEmail(), u.getAvatarUrl());
   }
 }

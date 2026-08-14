@@ -7,6 +7,10 @@ public interface UserSearchView {
 
   String getUsername();
 
+  String getFirstName();
+
+  String getLastName();
+
   String getFullName();
 
   String getEmail();

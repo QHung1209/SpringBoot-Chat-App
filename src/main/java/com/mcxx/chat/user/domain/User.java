@@ -21,8 +21,18 @@ public class User extends BaseEntity {
   @Column(nullable = false, length = 255)
   private String password;
 
-  @Column(nullable = false, length = 255)
-  private String fullName;
+  @Column(nullable = false, length = 100)
+  private String firstName;
+
+  @Column(length = 100)
+  private String lastName;
+
+  public String getFullName() {
+    if (firstName == null && lastName == null) return null;
+    if (firstName == null) return lastName;
+    if (lastName == null) return firstName;
+    return (firstName + " " + lastName).trim();
+  }
 
   @Column(unique = true, nullable = false, length = 255)
   private String email;

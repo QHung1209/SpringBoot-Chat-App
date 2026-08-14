@@ -12,7 +12,7 @@ import com.mcxx.chat.userrelation.dto.response.FriendView;
 public interface UserRelationRepository extends JpaRepository<UserRelation, UUID> {
 
   @Query(value = """
-      SELECT u.id as userId, u.full_name, u.avatar_url, u.bio, f.relationId
+      SELECT u.id as userId, u.first_name as firstName, u.last_name as lastName, TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as full_name, u.avatar_url, u.bio, f.relationId
       FROM users u
       JOIN (
         SELECT
@@ -27,7 +27,7 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
                       WHEN r.user_low_id = :id THEN r.user_high_id
                       ELSE r.user_low_id
                     END
-        WHERE (cast(:search as text) IS NULL OR u.full_name ILIKE CONCAT('%', :search, '%'))
+        WHERE (cast(:search as text) IS NULL OR u.first_name ILIKE CONCAT('%', :search, '%') OR u.last_name ILIKE CONCAT('%', :search, '%'))
         AND r.status = :status
         AND (r.user_low_id = :id OR r.user_high_id = :id)
         AND (cast(:relationId as uuid) IS NULL OR r.id < cast(:relationId as uuid))
@@ -35,7 +35,6 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
         ORDER BY r.id DESC
         LIMIT 30
       ) f
-
 
       ON u.id = f.userId
 
@@ -66,7 +65,7 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
   void acceptUser(UUID lowerId, UUID higherId);
 
   @Query(value = """
-      SELECT u.id as userId, u.full_name, u.avatar_url, u.bio, f.relationId
+      SELECT u.id as userId, u.first_name as firstName, u.last_name as lastName, TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as full_name, u.avatar_url, u.bio, f.relationId
       FROM users u
       JOIN (
       SELECT

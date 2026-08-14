@@ -20,7 +20,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
       SELECT
         u.id AS id,
         u.username AS username,
-        u.full_name AS "fullName",
+        u.first_name AS "firstName",
+        u.last_name AS "lastName",
+        TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) AS "fullName",
         u.email AS email,
         u.avatar_url AS "avatarUrl",
         u.bio AS bio,
@@ -36,7 +38,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         WHERE u.deleted = false
         AND u.id <> :currentUserId
         AND (cast(:search as text) IS NULL
-          OR u.full_name ILIKE CONCAT('%', :search, '%')
+          OR u.first_name ILIKE CONCAT('%', :search, '%')
+          OR u.last_name ILIKE CONCAT('%', :search, '%')
           OR u.username ILIKE CONCAT('%', :search, '%')
           OR u.email ILIKE CONCAT('%', :search, '%'))
         AND (cast(:cursor as uuid) IS NULL OR u.id < cast(:cursor as uuid))
