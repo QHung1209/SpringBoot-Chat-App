@@ -1,5 +1,6 @@
 package com.mcxx.chat.chat.validation;
 
+import com.mcxx.chat.chat.domain.MessageType;
 import com.mcxx.chat.chat.dto.request.SendMessageRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -22,7 +23,7 @@ public class SendMessageValidator
     }
 
     switch (request.getType()) {
-      case "TEXT" -> {
+      case MessageType.TEXT -> {
         if (request.getContent() == null || request.getContent().isBlank()) {
           context.disableDefaultConstraintViolation();
           context.buildConstraintViolationWithTemplate("content is required for TEXT message")
@@ -30,13 +31,15 @@ public class SendMessageValidator
           return false;
         }
       }
-      case "IMAGE", "VIDEO", "FILE" -> {
-        if (request.getMediaId() == null) {
+      case MessageType.IMAGE, MessageType.VIDEO, MessageType.FILE -> {
+        if (request.getMediaIds() == null || request.getMediaIds().isEmpty()) {
           context.disableDefaultConstraintViolation();
-          context.buildConstraintViolationWithTemplate("mediaId is required for IMAGE message")
-              .addPropertyNode("mediaId").addConstraintViolation();
+          context.buildConstraintViolationWithTemplate("mediaIds is required for " + request.getType() + " message")
+              .addPropertyNode("mediaIds").addConstraintViolation();
           return false;
         }
+      }
+      case SYSTEM -> {
       }
     }
 

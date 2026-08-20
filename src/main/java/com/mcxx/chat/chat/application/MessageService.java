@@ -2,6 +2,7 @@ package com.mcxx.chat.chat.application;
 
 import com.mcxx.chat.chat.domain.Conversation;
 import com.mcxx.chat.chat.domain.Message;
+import com.mcxx.chat.chat.domain.MessageType;
 import com.mcxx.chat.chat.dto.request.CreateMessage;
 import com.mcxx.chat.chat.dto.request.SendMessageRequest;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
@@ -11,6 +12,10 @@ import com.mcxx.chat.chat.event.MessageDeletedEvent;
 import com.mcxx.chat.chat.event.MessageSeenEvent;
 import com.mcxx.chat.chat.repository.MessageRepository;
 import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
+import com.mcxx.chat.media.application.MediaService;
+import com.mcxx.chat.media.domain.Media;
+import com.mcxx.chat.media.dto.response.MediaResponse;
+import com.mcxx.chat.media.repository.MediaRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +35,18 @@ public class MessageService {
   private final ConversationService conversationService;
   private final ConversationMemberService conversationMemberService;
   private final MessageReactionService messageReactionService;
+  private final MediaService mediaService;
+  private final MediaRepository mediaRepository;
   private final ApplicationEventPublisher eventPublisher;
 
-  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant before, Instant after) {
+  public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant before,
+      Instant after) {
     if (!conversationMemberService.isMember(conversationId, userId)) {
       throw new BadRequestException("Invalid conversation");
     }
 
-    List<MessageWithReplyProjection> messages =
-        messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, before, after);
+    List<MessageWithReplyProjection> messages = messageRepository
+        .findByConversationIdOrderByCreatedAtDesc(conversationId, before, after);
 
     List<UUID> messageIds = messages.stream().map(MessageWithReplyProjection::getId).toList();
 
@@ -46,19 +54,22 @@ public class MessageService {
         messageReactionService.getReactions(messageIds, userId).stream()
             .collect(Collectors.groupingBy(ReactionResponse::getMessageId));
 
+    Map<UUID, List<MediaResponse>> mediasByMessage =
+        mediaService.getMediasByMessageIds(messageIds);
+
     if (!messages.isEmpty()) {
       this.seenMessage(userId, messages.get(0).getId());
     }
 
     return messages.stream().map(message -> {
-      MessageResponse res = MessageResponse.from(message);
+      MessageResponse res = MessageResponse.from(message, mediasByMessage);
       res.setReactions(reactionsByMessage.getOrDefault(message.getId(), List.of()));
       return res;
     }).toList();
   }
 
   @Transactional
-  public Message sendMessage(UUID senderId, SendMessageRequest request) {
+  public MessageResponse sendMessage(UUID senderId, SendMessageRequest request) {
     Conversation conv = null;
     if (request.getReceiverId() != null) {
       conv = conversationService.createDirectConversation(senderId, request.getReceiverId());
@@ -68,8 +79,9 @@ public class MessageService {
         throw new BadRequestException("Invalid conversation");
       }
     }
+    Message replyTarget = null;
     if (request.getReplyToMessageId() != null) {
-      Message replyTarget = messageRepository.findById(request.getReplyToMessageId())
+      replyTarget = messageRepository.findById(request.getReplyToMessageId())
           .orElseThrow(() -> new BadRequestException("Invalid reply target message"));
       if (!replyTarget.getConversationId().equals(conv.getId())) {
         throw new BadRequestException("Cannot reply to a message from a different conversation");
@@ -82,13 +94,17 @@ public class MessageService {
     createMessage.setType(request.getType());
     createMessage.setContent(request.getContent());
     createMessage.setReplyToMessageId(request.getReplyToMessageId());
-    createMessage.setMediaId(request.getMediaId());
-    
+    createMessage.setMediaIds(request.getMediaIds());
+
     Message message = createMessage(createMessage);
 
-
     eventPublisher.publishEvent(new MessageCreatedEvent(conv.getId(), message));
-    return message;
+
+    List<MediaResponse> medias = mediaService
+        .getMediasByMessageIds(List.of(message.getId()))
+        .getOrDefault(message.getId(), List.of());
+
+    return MessageResponse.from(message, replyTarget, medias);
   }
 
   @Transactional
@@ -99,8 +115,14 @@ public class MessageService {
     message.setType(request.getType());
     message.setContent(request.getContent());
     message.setReplyToMessageId(request.getReplyToMessageId());
-    message.setMediaId(request.getMediaId());
     message.setMetadata(request.getMetadata());
+
+    // Attach media files if provided
+    if (request.getMediaIds() != null && !request.getMediaIds().isEmpty()) {
+      List<Media> medias = mediaRepository.findAllById(request.getMediaIds());
+      message.setMedias(medias);
+    }
+
     message = messageRepository.save(message);
 
     conversationService.updateLastMessage(request.getConversationId(), message.getId(),
@@ -136,5 +158,39 @@ public class MessageService {
 
     eventPublisher
         .publishEvent(new MessageSeenEvent(message.getConversationId(), messageId, userId));
+  }
+
+  public void seenConversation(UUID userId, UUID conversationId, UUID messageId) {
+    if (!conversationMemberService.isMember(conversationId, userId)) {
+      throw new ForbiddenException(Conversation.class, conversationId);
+    }
+    UUID targetMessageId = messageId;
+    if (targetMessageId == null) {
+      Conversation conv = conversationService.detail(conversationId);
+      targetMessageId = conv.getLastMessageId();
+    }
+    if (targetMessageId != null) {
+      conversationMemberService.seenMessage(conversationId, userId, targetMessageId);
+      eventPublisher.publishEvent(new MessageSeenEvent(conversationId, targetMessageId, userId));
+    }
+  }
+
+  public List<MessageResponse> getMediaMessages(UUID userId, UUID conversationId, MessageType type,
+      Instant before) {
+    if (!conversationMemberService.isMember(conversationId, userId)) {
+      throw new BadRequestException("Invalid conversation");
+    }
+    String typeStr = type != null ? type.name() : null;
+    List<Message> messages = messageRepository.findMediaMessages(typeStr, conversationId, before);
+
+    List<UUID> messageIds = messages.stream().map(Message::getId).toList();
+    Map<UUID, List<MediaResponse>> mediasByMessage =
+        mediaService.getMediasByMessageIds(messageIds);
+
+    return messages.stream().map(msg -> {
+      MessageResponse res = MessageResponse.from(msg);
+      res.setMedias(mediasByMessage.getOrDefault(msg.getId(), List.of()));
+      return res;
+    }).toList();
   }
 }

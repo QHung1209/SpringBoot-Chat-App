@@ -1,7 +1,6 @@
 package com.mcxx.chat.chat.api;
 
 import com.mcxx.chat.chat.application.MessageService;
-import com.mcxx.chat.chat.domain.Message;
 import com.mcxx.chat.chat.dto.request.SendMessageRequest;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
 import java.util.UUID;
@@ -27,13 +26,13 @@ public class MessageController {
   @PostMapping
   public ResponseEntity<ApiResponse<MessageResponse>> sendMessage(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody SendMessageRequest request) {
-    Message message = messageService.sendMessage(authUser.getId(), request);
-    return ResponseEntity.ok(ApiResponse.success(200, MessageResponse.from(message)));
+    MessageResponse response = messageService.sendMessage(authUser.getId(), request);
+    return ResponseEntity.ok(ApiResponse.success(200, response));
   }
 
   @PostMapping("/{messageId}/seen")
-  public ResponseEntity<ApiResponse<Void>> seenMessage(@AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID messageId) {
+  public ResponseEntity<ApiResponse<Void>> seenMessage(
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID messageId) {
     messageService.seenMessage(authUser.getId(), messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }

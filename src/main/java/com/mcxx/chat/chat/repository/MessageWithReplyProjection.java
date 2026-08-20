@@ -3,6 +3,8 @@ package com.mcxx.chat.chat.repository;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.mcxx.chat.chat.domain.MessageType;
+
 public interface MessageWithReplyProjection {
 
     UUID getId();
@@ -13,11 +15,9 @@ public interface MessageWithReplyProjection {
 
     UUID getSenderId();
 
-    String getType();
+    MessageType getType();
 
     String getMetadata();
-
-    UUID getMediaId();
 
     Boolean getIsPinned();
 
@@ -33,9 +33,7 @@ public interface MessageWithReplyProjection {
 
     UUID getReplySenderId();
 
-    String getReplyType();
-
-    UUID getReplyMediaId();
+    MessageType getReplyType();
 
     Instant getReplyDeletedAt();
 

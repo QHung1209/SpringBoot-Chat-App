@@ -17,7 +17,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                 m.sender_id AS senderId,
                 m.type,
                 CAST(m.metadata AS text) AS metadata,
-                m.media_id AS mediaId,
                 m.is_pinned AS isPinned,
                 m.deleted_at AS deletedAt,
                 m.created_at AS createdAt,
@@ -27,7 +26,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                 rm.content AS replyContent,
                 rm.sender_id AS replySenderId,
                 rm.type AS replyType,
-                rm.media_id AS replyMediaId,
                 rm.deleted_at AS replyDeletedAt,
                 rm.created_at AS replyCreatedAt
 
@@ -36,16 +34,34 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                 ON rm.id = m.reply_to_message_id
             WHERE m.conversation_id = :conversationId
               AND (
-                  CAST(:before AS timestamp) IS NULL
-                  OR m.created_at < CAST(:before AS timestamp)
+                  CAST(:before AS timestamptz) IS NULL
+                  OR m.created_at < CAST(:before AS timestamptz)
               )
               AND (
-                  CAST(:after AS timestamp) IS NULL
-                  OR m.created_at > CAST(:after AS timestamp)
+                  CAST(:after AS timestamptz) IS NULL
+                  OR m.created_at > CAST(:after AS timestamptz)
               )
             ORDER BY m.created_at DESC
-            LIMIT 15
-                        """, nativeQuery = true)
+            LIMIT 20
+                     """, nativeQuery = true)
     public List<MessageWithReplyProjection> findByConversationIdOrderByCreatedAtDesc(
             UUID conversationId, Instant before, Instant after);
+
+    @Query(value = """
+            SELECT *
+            FROM messages m
+            WHERE (CAST(:type AS text) IS NULL OR m.type = CAST(:type AS text))
+              AND m.conversation_id = :conversationId
+              AND (
+                CAST (:before AS timestamptz) IS NULL
+                OR m.created_at < CAST (:before AS timestamptz)
+              )
+              AND EXISTS (
+                SELECT 1 FROM message_media mm WHERE mm.message_id = m.id
+              )
+            ORDER BY m.created_at DESC
+            LIMIT 20
+            """, nativeQuery = true)
+    public List<Message> findMediaMessages(
+            String type, UUID conversationId, Instant before);
 }

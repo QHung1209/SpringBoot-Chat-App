@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcxx.chat.chat.domain.Message;
+import com.mcxx.chat.chat.domain.MessageType;
 import com.mcxx.chat.chat.dto.metadata.MessageMetadata;
 import com.mcxx.chat.chat.dto.request.CreateMessage;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
@@ -17,6 +18,8 @@ import com.mcxx.chat.chat.event.MessageReactionEvent;
 import com.mcxx.chat.chat.event.MessageSeenEvent;
 import com.mcxx.chat.chat.event.TypingEvent;
 import com.mcxx.chat.chat.repository.MessageRepository;
+import com.mcxx.chat.media.application.MediaService;
+import com.mcxx.chat.media.dto.response.MediaResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,12 +31,13 @@ public class ChatRealtimeService {
   private final MessageRepository messageRepository;
   private final ObjectMapper objectMapper;
   private final MessageService messageService;
+  private final MediaService mediaService;
 
   private void createSystemMessage(UUID conversationId, UUID senderId, MessageMetadata metadata) {
     CreateMessage createMessage = new CreateMessage();
     createMessage.setConversationId(conversationId);
     createMessage.setSenderId(senderId);
-    createMessage.setType("system");
+    createMessage.setType(MessageType.SYSTEM);
     JsonNode metadataNode = objectMapper.valueToTree(metadata);
     createMessage.setMetadata(metadataNode);
     Message message = messageService.createMessage(createMessage);
@@ -46,7 +50,13 @@ public class ChatRealtimeService {
     if (message.getReplyToMessageId() != null) {
       replyTarget = messageRepository.findById(message.getReplyToMessageId()).orElse(null);
     }
-    MessageResponse payload = MessageResponse.from(message, replyTarget);
+
+    // Resolve presigned GET URLs for all media attached to this message
+    List<MediaResponse> medias = mediaService
+        .getMediasByMessageIds(List.of(message.getId()))
+        .getOrDefault(message.getId(), List.of());
+
+    MessageResponse payload = MessageResponse.from(message, replyTarget, medias);
 
     messagingTemplate.convertAndSend("/topic/conversations/" + message.getConversationId(),
         payload);
