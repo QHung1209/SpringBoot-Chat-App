@@ -51,7 +51,7 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
             FROM conversation_members cm
             JOIN users u ON u.id = cm.user_id
             WHERE cm.conversation_id = :conversationId
-            AND (cast(:createdAt as timestamp) IS NULL OR cm.created_at > cast(:createdAt as timestamp))
+            AND (cast(:createdAt AS timestamptz) IS NULL OR cm.created_at > cast(:createdAt AS timestamptz))
             ORDER BY cm.created_at ASC
             LIMIT 30
             """,

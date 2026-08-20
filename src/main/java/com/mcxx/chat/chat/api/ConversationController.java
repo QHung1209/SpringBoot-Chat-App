@@ -1,5 +1,6 @@
 package com.mcxx.chat.chat.api;
 
+import com.mcxx.chat.chat.domain.MessageType;
 import com.mcxx.chat.chat.application.ConversationService;
 import com.mcxx.chat.chat.application.MessageService;
 import java.time.Instant;
@@ -76,5 +77,24 @@ public class ConversationController {
       @Valid @RequestBody UpdateGroupRequest request) {
     conversationService.updateGroupInfo(conversationId, request);
     return ResponseEntity.ok(ApiResponse.success(200, null));
+  }
+
+  @PostMapping("/{conversationId}/seen")
+  public ResponseEntity<ApiResponse<Void>> seenConversation(
+      @AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId,
+      @RequestParam(required = false) UUID messageId) {
+    messageService.seenConversation(authUser.getId(), conversationId, messageId);
+    return ResponseEntity.ok(ApiResponse.success(200, null));
+  }
+
+  @GetMapping("/{conversationId}/media")
+  public ResponseEntity<ApiResponse<List<MessageResponse>>> getMediaMessages(
+      @AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId,
+      @RequestParam(required = false) MessageType type,
+      @RequestParam(required = false) Instant before) {
+    return ResponseEntity.ok(ApiResponse.success(200,
+        messageService.getMediaMessages(authUser.getId(), conversationId, type, before)));
   }
 }

@@ -40,7 +40,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
             AND other_cm.user_id <> :userId
           LEFT JOIN users other_user ON other_user.id = other_cm.user_id
           LEFT JOIN messages m ON m.id = co.last_message_id
-          WHERE (cast(:updatedTime as timestamp) IS NULL OR co.updated_at < cast(:updatedTime as timestamp))
+          WHERE (cast(:updatedTime AS timestamptz) IS NULL OR co.updated_at < cast(:updatedTime AS timestamptz))
           ORDER BY co.updated_at DESC
           LIMIT 10
           """,
@@ -56,5 +56,4 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
       WHERE id = :conversationId
       """, nativeQuery = true)
   void updateLastMessageId(UUID conversationId, UUID messageId);
-
 }

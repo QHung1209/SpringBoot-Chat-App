@@ -12,7 +12,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.mcxx.chat.common.exception.ForbiddenException;
 import com.mcxx.chat.common.exception.NotFoundException;
 import com.mcxx.chat.chat.domain.ConversationRole;
 import com.mcxx.chat.chat.event.MemberAddedEvent;

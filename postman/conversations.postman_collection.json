@@ -128,6 +128,51 @@
         },
         "description": "Cập nhật thông tin group (tên, ảnh đại diện, ...)."
       }
+    },
+    {
+      "name": "Mark Conversation as Seen",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/seen?messageId=",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ],
+          "query": [
+            {
+              "key": "messageId",
+              "value": "",
+              "description": "Optional. UUID của tin nhắn đã đọc. Nếu để trống, tự động lấy tin nhắn mới nhất của hội thoại."
+            }
+          ]
+        },
+        "description": "Đánh dấu đã xem hội thoại tới tin nhắn chỉ định (hoặc tin nhắn mới nhất)."
+      }
+    },
+    {
+      "name": "Get Conversation Media Messages",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/conversations/:conversationId/media?type=&before=",
+          "variable": [
+            { "key": "conversationId", "value": "{{conversationId}}" }
+          ],
+          "query": [
+            {
+              "key": "type",
+              "value": "",
+              "description": "Optional. Loại media: IMAGE | VIDEO | FILE"
+            },
+            {
+              "key": "before",
+              "value": "",
+              "description": "Optional. Phân trang cursor ISO-8601 Instant"
+            }
+          ]
+        },
+        "description": "Lấy danh sách các tin nhắn media (ảnh, video, file) trong hội thoại."
+      }
     }
   ]
 }
