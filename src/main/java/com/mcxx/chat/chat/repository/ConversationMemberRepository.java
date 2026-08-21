@@ -13,27 +13,23 @@ import com.mcxx.chat.chat.domain.ConversationRole;
 public interface ConversationMemberRepository extends JpaRepository<ConversationMember, UUID> {
 
     @Modifying
-    @Query(value = """
-            DELETE FROM conversation_members
-            WHERE conversation_id = :conversationId AND user_id = :userId
-            """, nativeQuery = true)
-    void removeMember(UUID conversationId, UUID userId);
+    void deleteByConversationIdAndUserId(UUID conversationId, UUID userId);
 
     @Modifying
-    @Query(value = """
-            UPDATE conversation_members
-            SET role = :role
-            WHERE conversation_id = :conversationId AND user_id = :userId
-            """, nativeQuery = true)
+    @Query("""
+            UPDATE ConversationMember cm
+            SET cm.role = :role
+            WHERE cm.conversationId = :conversationId AND cm.userId = :userId
+            """)
     void updateRole(UUID conversationId, UUID userId, ConversationRole role);
 
     List<ConversationMember> findAllByConversationId(UUID conversationId);
 
-    @Query(value = """
-            SELECT user_id
-            FROM conversation_members
-            WHERE conversation_id = :conversationId
-            """, nativeQuery = true)
+    @Query("""
+            SELECT cm.userId
+            FROM ConversationMember cm
+            WHERE cm.conversationId = :conversationId
+            """)
     List<UUID> findUserIdsByConversationId(UUID conversationId);
 
     Optional<ConversationMember> findByConversationIdAndUserId(UUID conversationId, UUID userId);
@@ -62,10 +58,10 @@ public interface ConversationMemberRepository extends JpaRepository<Conversation
     Boolean existsByConversationIdAndUserId(UUID conversationId, UUID userId);
 
     @Modifying
-    @Query(value = """
-            UPDATE conversation_members
-            SET last_read_message_id = :lastReadMessageId
-            WHERE conversation_id = :conversationId AND user_id = :userId
-            """, nativeQuery = true)
+    @Query("""
+            UPDATE ConversationMember cm
+            SET cm.lastReadMessageId = :lastReadMessageId
+            WHERE cm.conversationId = :conversationId AND cm.userId = :userId
+            """)
     void seenMessage(UUID conversationId, UUID userId, UUID lastReadMessageId);
 }

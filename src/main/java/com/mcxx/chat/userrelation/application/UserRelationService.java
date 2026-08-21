@@ -55,7 +55,7 @@ public class UserRelationService {
 
   public void deleteRelation(UUID userId, UUID targetId) {
     SortedIds ids = getSortedIds(userId, targetId);
-    userRelationRepository.deleteRelation(ids.lowId(), ids.highId());
+    userRelationRepository.deleteByUserLowIdAndUserHighId(ids.lowId(), ids.highId());
   }
 
   public void acceptUser(UUID userId, UUID targetId) {

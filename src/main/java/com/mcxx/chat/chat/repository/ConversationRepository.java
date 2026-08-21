@@ -48,12 +48,12 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
   List<ConversationMessageProjection> getConversations(UUID userId, Instant updatedTime);
 
   @Modifying
-  @Query(value = """
-      UPDATE conversations
+  @Query("""
+      UPDATE Conversation c
       SET
-        last_message_id = :messageId,
-        updated_at = now()
-      WHERE id = :conversationId
-      """, nativeQuery = true)
+        c.lastMessageId = :messageId,
+        c.updatedAt = CURRENT_TIMESTAMP
+      WHERE c.id = :conversationId
+      """)
   void updateLastMessageId(UUID conversationId, UUID messageId);
 }
