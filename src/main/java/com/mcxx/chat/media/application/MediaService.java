@@ -9,10 +9,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.mcxx.chat.common.exception.BadRequestException;
 import com.mcxx.chat.media.domain.Media;
 import com.mcxx.chat.media.domain.MediaType;
 import com.mcxx.chat.media.dto.request.GeneratePresignedUrlRequest;
 import com.mcxx.chat.media.dto.response.MediaResponse;
+import com.mcxx.chat.media.dto.response.PresignedPostResponse;
 import com.mcxx.chat.media.dto.response.PresignedUrlResponse;
 import com.mcxx.chat.media.repository.MediaRepository;
 import com.mcxx.chat.media.repository.MessageMediaProjection;
@@ -30,9 +32,16 @@ public class MediaService {
   @Value("${aws.s3.bucket-name}")
   private String bucketName;
 
+  @Value("${aws.s3.max-file-size:5242880}")
+  private long maxFileSize;
+
   @Transactional
   public PresignedUrlResponse generatePresignedUrl(UUID uploaderId,
       GeneratePresignedUrlRequest request) {
+    if (request.getFileSize() != null && request.getFileSize() > maxFileSize) {
+      throw new BadRequestException("File size exceeds maximum allowed limit (" + (maxFileSize / (1024 * 1024)) + "MB)");
+    }
+
     MediaType mediaType = MediaType.fromMimeType(request.getMimeType());
     String s3Key = "uploads/" + uploaderId + "/" + UUID.randomUUID() + "_" + request.getFileName();
     String uploadUrl =
@@ -47,6 +56,31 @@ public class MediaService {
     media.setType(mediaType);
     media = mediaRepository.save(media);
     return new PresignedUrlResponse(media.getId(), uploadUrl);
+  }
+
+  @Transactional
+  public PresignedPostResponse generatePresignedPost(UUID uploaderId,
+      GeneratePresignedUrlRequest request) {
+    if (request.getFileSize() != null && request.getFileSize() > maxFileSize) {
+      throw new BadRequestException("File size exceeds maximum allowed limit (" + (maxFileSize / (1024 * 1024)) + "MB)");
+    }
+
+    MediaType mediaType = MediaType.fromMimeType(request.getMimeType());
+    String s3Key = "uploads/" + uploaderId + "/" + UUID.randomUUID() + "_" + request.getFileName();
+
+    S3Service.PresignedPostData postData = s3Service.generatePresignedPost(
+        s3Key, request.getMimeType(), 1, maxFileSize, Duration.ofMinutes(15));
+
+    Media media = new Media();
+    media.setUploaderId(uploaderId);
+    media.setFileName(request.getFileName());
+    media.setKey(s3Key);
+    media.setFileSize(request.getFileSize());
+    media.setMimeType(request.getMimeType());
+    media.setType(mediaType);
+    media = mediaRepository.save(media);
+
+    return new PresignedPostResponse(media.getId(), postData.url(), postData.fields());
   }
 
   @Transactional

@@ -13,6 +13,7 @@ import com.mcxx.chat.auth.dto.response.AuthUser;
 import com.mcxx.chat.common.dto.ApiResponse;
 import com.mcxx.chat.media.application.MediaService;
 import com.mcxx.chat.media.dto.request.GeneratePresignedUrlRequest;
+import com.mcxx.chat.media.dto.response.PresignedPostResponse;
 import com.mcxx.chat.media.dto.response.PresignedUrlResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,14 @@ public class MediaController {
       @Valid @RequestBody GeneratePresignedUrlRequest request) {
     return ResponseEntity
         .ok(ApiResponse.success(200, mediaService.generatePresignedUrl(authUser.getId(), request)));
+  }
+
+  @PostMapping("/presigned-post")
+  public ResponseEntity<ApiResponse<PresignedPostResponse>> generatePresignedPost(
+      @AuthenticationPrincipal AuthUser authUser,
+      @Valid @RequestBody GeneratePresignedUrlRequest request) {
+    return ResponseEntity
+        .ok(ApiResponse.success(200, mediaService.generatePresignedPost(authUser.getId(), request)));
   }
 
   @DeleteMapping("/{mediaId}")
