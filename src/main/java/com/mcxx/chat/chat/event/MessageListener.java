@@ -46,4 +46,14 @@ public class MessageListener {
   public void onMessageSeen(MessageSeenEvent event) {
     chatRealtimeService.publishSeen(event);
   }
+
+  @EventListener
+  public void onMessagePinned(MessagePinnedEvent event) {
+    chatRealtimeService.publishPinMessage(event);
+  }
+
+  @EventListener
+  public void onMessageUnpinned(MessageUnpinnedEvent event) {
+    chatRealtimeService.publishUnpinMessage(event);
+  }
 }

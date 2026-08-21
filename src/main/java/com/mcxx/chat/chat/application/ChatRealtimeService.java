@@ -14,8 +14,10 @@ import com.mcxx.chat.chat.dto.response.MessageResponse;
 import com.mcxx.chat.chat.event.MemberAddedEvent;
 import com.mcxx.chat.chat.event.MemberLeftEvent;
 import com.mcxx.chat.chat.event.MessageDeletedEvent;
+import com.mcxx.chat.chat.event.MessagePinnedEvent;
 import com.mcxx.chat.chat.event.MessageReactionEvent;
 import com.mcxx.chat.chat.event.MessageSeenEvent;
+import com.mcxx.chat.chat.event.MessageUnpinnedEvent;
 import com.mcxx.chat.chat.event.TypingEvent;
 import com.mcxx.chat.chat.repository.MessageRepository;
 import com.mcxx.chat.media.application.MediaService;
@@ -52,8 +54,7 @@ public class ChatRealtimeService {
     }
 
     // Resolve presigned GET URLs for all media attached to this message
-    List<MediaResponse> medias = mediaService
-        .getMediasByMessageIds(List.of(message.getId()))
+    List<MediaResponse> medias = mediaService.getMediasByMessageIds(List.of(message.getId()))
         .getOrDefault(message.getId(), List.of());
 
     MessageResponse payload = MessageResponse.from(message, replyTarget, medias);
@@ -65,7 +66,8 @@ public class ChatRealtimeService {
 
     memberIds.stream().filter(id -> !id.equals(message.getSenderId())).forEach(id -> {
       messagingTemplate.convertAndSendToUser(id.toString(), "/queue/conversations", payload);
-      messagingTemplate.convertAndSendToUser(id.toString(), "/queue/conversations/" + message.getConversationId(), payload);
+      messagingTemplate.convertAndSendToUser(id.toString(),
+          "/queue/conversations/" + message.getConversationId(), payload);
     });
   }
 
@@ -100,6 +102,20 @@ public class ChatRealtimeService {
     this.createSystemMessage(event.conversationId(), event.actorId(),
         new MessageMetadata("MEMBER_LEFT", event.actorId(), event.targetId()));
     messagingTemplate.convertAndSend("/topic/conversations/" + event.conversationId() + "/members",
+        event);
+  }
+
+  public void publishPinMessage(MessagePinnedEvent event) {
+    this.createSystemMessage(event.conversationId(), event.userId(),
+        new MessageMetadata("MESSAGE_PINNED", event.userId(), event.messageId()));
+    messagingTemplate.convertAndSend("/topic/conversations/" + event.conversationId() + "/pins",
+        event);
+  }
+
+  public void publishUnpinMessage(MessageUnpinnedEvent event) {
+    this.createSystemMessage(event.conversationId(), event.userId(),
+        new MessageMetadata("MESSAGE_UNPINNED", event.userId(), event.messageId()));
+    messagingTemplate.convertAndSend("/topic/conversations/" + event.conversationId() + "/unpins",
         event);
   }
 }

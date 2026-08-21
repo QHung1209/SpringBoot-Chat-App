@@ -36,15 +36,13 @@ public class Message extends BaseEntity {
   @JdbcTypeCode(SqlTypes.JSON)
   private JsonNode metadata;
   private UUID replyToMessageId;
-  private Boolean isPinned;
+  @Column(nullable = false)
+  private Boolean isPinned = false;
   private Instant deletedAt;
 
   @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(
-      name = "message_media",
-      joinColumns = @JoinColumn(name = "message_id"),
-      inverseJoinColumns = @JoinColumn(name = "media_id")
-  )
+  @JoinTable(name = "message_media", joinColumns = @JoinColumn(name = "message_id"),
+      inverseJoinColumns = @JoinColumn(name = "media_id"))
   @OrderColumn(name = "position")
   private List<Media> medias = new ArrayList<>();
 }
