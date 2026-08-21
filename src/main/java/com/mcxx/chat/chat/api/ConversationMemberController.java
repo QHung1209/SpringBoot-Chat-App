@@ -1,6 +1,8 @@
 package com.mcxx.chat.chat.api;
 
 import com.mcxx.chat.auth.dto.response.AuthUser;
+import com.mcxx.chat.chat.annotation.IsAdmin;
+import com.mcxx.chat.chat.annotation.IsMember;
 import com.mcxx.chat.chat.application.ConversationMemberService;
 import java.time.Instant;
 import java.util.List;
@@ -36,6 +38,7 @@ public class ConversationMemberController {
             .map(ConversationMemberResponse::from).toList()));
   }
 
+  @IsMember
   @PostMapping("/add")
   public ResponseEntity<ApiResponse<Void>> addMember(@AuthenticationPrincipal AuthUser user,
       @PathVariable UUID conversationId, @Valid @RequestBody AddMembersRequest request) {
@@ -43,6 +46,7 @@ public class ConversationMemberController {
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
+  @IsAdmin
   @PostMapping("/remove")
   public ResponseEntity<ApiResponse<Void>> removeMember(@AuthenticationPrincipal AuthUser user,
       @PathVariable UUID conversationId, @Valid @RequestBody MemberIdRequest request) {
@@ -50,6 +54,7 @@ public class ConversationMemberController {
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
+  @IsMember
   @PostMapping("/leave")
   public ResponseEntity<ApiResponse<Void>> leave(@AuthenticationPrincipal AuthUser user,
       @PathVariable UUID conversationId) {
@@ -57,6 +62,7 @@ public class ConversationMemberController {
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
+  @IsAdmin
   @PostMapping("/update-role")
   public ResponseEntity<ApiResponse<Void>> updateRole(@PathVariable UUID conversationId,
       @Valid @RequestBody UpdateRoleRequest request) {

@@ -3,11 +3,8 @@ package com.mcxx.chat.chat.api;
 import com.mcxx.chat.chat.application.MessageService;
 import com.mcxx.chat.chat.dto.request.SendMessageRequest;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,21 +23,7 @@ public class MessageController {
   @PostMapping
   public ResponseEntity<ApiResponse<MessageResponse>> sendMessage(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody SendMessageRequest request) {
-    MessageResponse response = messageService.sendMessage(authUser.getId(), request);
+    MessageResponse response = messageService.sendMessage(authUser.getId(), request, null);
     return ResponseEntity.ok(ApiResponse.success(200, response));
-  }
-
-  @PostMapping("/{messageId}/seen")
-  public ResponseEntity<ApiResponse<Void>> seenMessage(
-      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID messageId) {
-    messageService.seenMessage(authUser.getId(), messageId);
-    return ResponseEntity.ok(ApiResponse.success(200, null));
-  }
-
-  @DeleteMapping("/{messageId}")
-  public ResponseEntity<ApiResponse<Void>> deleteMessage(@AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID messageId) {
-    messageService.deleteMessage(authUser.getId(), messageId);
-    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 }
