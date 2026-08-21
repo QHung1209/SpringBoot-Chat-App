@@ -1,10 +1,12 @@
 package com.mcxx.chat.chat.application;
 
 import java.time.Duration;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import com.mcxx.chat.chat.domain.ConversationRole;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -24,10 +26,14 @@ public class ConversationMemberCacheService {
     return Boolean.TRUE.equals(redisTemplate.hasKey(key));
   }
 
-  public void populate(UUID conversationId, List<UUID> memberIds) {
+  public void populate(UUID conversationId, Map<UUID, ConversationRole> memberRoles) {
+    if (memberRoles == null || memberRoles.isEmpty()) {
+      return;
+    }
     String key = key(conversationId);
-    String[] values = memberIds.stream().map(UUID::toString).toArray(String[]::new);
-    redisTemplate.opsForSet().add(key, values);
+    Map<String, String> entries = memberRoles.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().name()));
+    redisTemplate.opsForHash().putAll(key, entries);
     redisTemplate.expire(key, TTL);
   }
 
@@ -36,20 +42,42 @@ public class ConversationMemberCacheService {
     if (!isPopulated(key)) {
       return null;
     }
-    return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, userId.toString()));
+    return redisTemplate.opsForHash().hasKey(key, userId.toString());
   }
 
-  public void addMembers(UUID conversationId, List<UUID> memberIds) {
+  public ConversationRole getRole(UUID conversationId, UUID userId) {
     String key = key(conversationId);
-    if (!isPopulated(key))
+    if (!isPopulated(key)) {
+      return null;
+    }
+    Object roleObj = redisTemplate.opsForHash().get(key, userId.toString());
+    if (roleObj == null) {
+      return null;
+    }
+    return ConversationRole.valueOf(roleObj.toString());
+  }
+
+  public void addMembers(UUID conversationId, Map<UUID, ConversationRole> memberRoles) {
+    String key = key(conversationId);
+    if (!isPopulated(key) || memberRoles == null || memberRoles.isEmpty()) {
       return;
-    String[] values = memberIds.stream().map(UUID::toString).toArray(String[]::new);
-    redisTemplate.opsForSet().add(key, values);
+    }
+    Map<String, String> entries = memberRoles.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue().name()));
+    redisTemplate.opsForHash().putAll(key, entries);
+  }
+
+  public void updateRole(UUID conversationId, UUID userId, ConversationRole role) {
+    String key = key(conversationId);
+    if (!isPopulated(key)) {
+      return;
+    }
+    redisTemplate.opsForHash().put(key, userId.toString(), role.name());
   }
 
   public void removeMember(UUID conversationId, UUID userId) {
     String key = key(conversationId);
-    redisTemplate.opsForSet().remove(key, userId.toString());
+    redisTemplate.opsForHash().delete(key, userId.toString());
   }
 
   public void evict(UUID conversationId) {

@@ -6,7 +6,9 @@ import com.mcxx.chat.chat.repository.MemberProfileProjection;
 import com.mcxx.chat.chat.domain.ConversationMember;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -45,7 +47,9 @@ public class ConversationMemberService {
     conversationMemberRepository.saveAll(members);
 
     evictMemberIdsCache(conversationId);
-    memberCacheService.addMembers(conversationId, memberIds);
+    Map<UUID, ConversationRole> map = members.stream()
+        .collect(Collectors.toMap(ConversationMember::getUserId, ConversationMember::getRole));
+    memberCacheService.addMembers(conversationId, map);
 
     List<UUID> addedMemberIds = memberIds.stream().filter(id -> !id.equals(meId)).toList();
     addedMemberIds.forEach(id -> applicationEventPublisher
@@ -53,7 +57,7 @@ public class ConversationMemberService {
   }
 
   private void deleteMemberInternal(UUID conversationId, UUID userId) {
-    conversationMemberRepository.removeMember(conversationId, userId);
+    conversationMemberRepository.deleteByConversationIdAndUserId(conversationId, userId);
     evictMemberIdsCache(conversationId);
     memberCacheService.removeMember(conversationId, userId);
   }
@@ -70,6 +74,7 @@ public class ConversationMemberService {
 
   public void updateRole(UUID conversationId, UUID userId, ConversationRole role) {
     conversationMemberRepository.updateRole(conversationId, userId, role);
+    memberCacheService.updateRole(conversationId, userId, role);
   }
 
   public void leaveConversation(UUID meId, UUID conversationId) {
@@ -115,10 +120,31 @@ public class ConversationMemberService {
       return cached;
     }
 
-    List<UUID> memberIds = conversationMemberRepository.findUserIdsByConversationId(conversationId);
-    memberCacheService.populate(conversationId, memberIds);
+    Map<UUID, ConversationRole> memberRoles = fetchAndCacheMemberRoles(conversationId);
+    return memberRoles.containsKey(userId);
+  }
 
-    return memberIds.contains(userId);
+  @Transactional(readOnly = true)
+  public ConversationRole memberRole(UUID conversationId, UUID userId) {
+    ConversationRole role = memberCacheService.getRole(conversationId, userId);
+    if (role != null) {
+      return role;
+    }
+
+    Map<UUID, ConversationRole> memberRoles = fetchAndCacheMemberRoles(conversationId);
+    ConversationRole fetchedRole = memberRoles.get(userId);
+    if (fetchedRole == null) {
+      throw new NotFoundException(ConversationMember.class, userId);
+    }
+    return fetchedRole;
+  }
+
+  private Map<UUID, ConversationRole> fetchAndCacheMemberRoles(UUID conversationId) {
+    List<ConversationMember> members = conversationMemberRepository.findAllByConversationId(conversationId);
+    Map<UUID, ConversationRole> memberRoles = members.stream()
+        .collect(Collectors.toMap(ConversationMember::getUserId, ConversationMember::getRole));
+    memberCacheService.populate(conversationId, memberRoles);
+    return memberRoles;
   }
 
   @CacheEvict(cacheNames = "conversation-members", key = "#conversationId")
