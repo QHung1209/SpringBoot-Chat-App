@@ -1,6 +1,8 @@
 package com.mcxx.chat.chat.application;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -53,11 +55,20 @@ public class ChatRealtimeService {
       replyTarget = messageRepository.findById(message.getReplyToMessageId()).orElse(null);
     }
 
-    // Resolve presigned GET URLs for all media attached to this message
-    List<MediaResponse> medias = mediaService.getMediasByMessageIds(List.of(message.getId()))
-        .getOrDefault(message.getId(), List.of());
+    // Resolve presigned GET URLs for all media attached to this message and reply target
+    List<UUID> targetIds = new ArrayList<>();
+    targetIds.add(message.getId());
+    if (message.getReplyToMessageId() != null) {
+      targetIds.add(message.getReplyToMessageId());
+    }
 
-    MessageResponse payload = MessageResponse.from(message, replyTarget, medias);
+    Map<UUID, List<MediaResponse>> mediasByMessage = mediaService.getMediasByMessageIds(targetIds);
+    List<MediaResponse> medias = mediasByMessage.getOrDefault(message.getId(), List.of());
+    List<MediaResponse> replyMedias = message.getReplyToMessageId() != null
+        ? mediasByMessage.getOrDefault(message.getReplyToMessageId(), List.of())
+        : List.of();
+
+    MessageResponse payload = MessageResponse.from(message, replyTarget, medias, replyMedias);
 
     messagingTemplate.convertAndSend("/topic/conversations/" + message.getConversationId(),
         payload);

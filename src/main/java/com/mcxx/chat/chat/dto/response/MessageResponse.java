@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcxx.chat.chat.domain.Message;
 import com.mcxx.chat.chat.domain.MessageType;
-import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
+import com.mcxx.chat.chat.repository.projection.MessageWithReplyProjection;
 import com.mcxx.chat.media.dto.response.MediaResponse;
 import lombok.Data;
 
@@ -40,6 +40,11 @@ public class MessageResponse {
 
   public static MessageResponse from(Message message, Message replyMessage,
       List<MediaResponse> medias) {
+    return from(message, replyMessage, medias, List.of());
+  }
+
+  public static MessageResponse from(Message message, Message replyMessage,
+      List<MediaResponse> medias, List<MediaResponse> replyMedias) {
     MessageResponse resp = new MessageResponse();
     resp.setId(message.getId());
     resp.setConversationId(message.getConversationId());
@@ -54,7 +59,7 @@ public class MessageResponse {
     resp.setDeletedAt(message.getDeletedAt());
 
     if (replyMessage != null) {
-      resp.setReplyToMessage(from(replyMessage, null, List.of()));
+      resp.setReplyToMessage(from(replyMessage, null, replyMedias));
     }
     return resp;
   }
@@ -92,6 +97,7 @@ public class MessageResponse {
       reply.setSenderId(p.getReplySenderId());
       reply.setType(p.getReplyType());
       reply.setContent(p.getReplyDeletedAt() != null ? null : p.getReplyContent());
+      reply.setMedias(mediasByMessage.getOrDefault(p.getReplyId(), List.of()));
       reply.setCreatedAt(p.getReplyCreatedAt());
       reply.setDeletedAt(p.getReplyDeletedAt());
       resp.setReplyToMessage(reply);
@@ -99,3 +105,4 @@ public class MessageResponse {
     return resp;
   }
 }
+

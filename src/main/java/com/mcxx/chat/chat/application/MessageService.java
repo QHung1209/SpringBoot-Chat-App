@@ -13,12 +13,13 @@ import com.mcxx.chat.chat.event.MessagePinnedEvent;
 import com.mcxx.chat.chat.event.MessageSeenEvent;
 import com.mcxx.chat.chat.event.MessageUnpinnedEvent;
 import com.mcxx.chat.chat.repository.MessageRepository;
-import com.mcxx.chat.chat.repository.MessageWithReplyProjection;
+import com.mcxx.chat.chat.repository.projection.MessageWithReplyProjection;
 import com.mcxx.chat.media.application.MediaService;
 import com.mcxx.chat.media.domain.Media;
 import com.mcxx.chat.media.dto.response.MediaResponse;
 import com.mcxx.chat.media.repository.MediaRepository;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -42,11 +43,11 @@ public class MessageService {
   private final ApplicationEventPublisher eventPublisher;
 
   public List<MessageResponse> getMessages(UUID userId, UUID conversationId, Instant before,
-      Instant after) {
+      Instant after, String search) {
 
 
     List<MessageWithReplyProjection> messages =
-        messageRepository.findByConversationIdOrderByCreatedAtDesc(conversationId, before, after);
+        messageRepository.getMessages(userId, conversationId, before, after, search);
 
     List<UUID> messageIds = messages.stream().map(MessageWithReplyProjection::getId).toList();
 
@@ -54,7 +55,15 @@ public class MessageService {
         messageReactionService.getReactions(messageIds, userId).stream()
             .collect(Collectors.groupingBy(ReactionResponse::getMessageId));
 
-    Map<UUID, List<MediaResponse>> mediasByMessage = mediaService.getMediasByMessageIds(messageIds);
+    List<UUID> allMediaMessageIds = new ArrayList<>(messageIds);
+    messages.forEach(m -> {
+      if (m.getReplyId() != null) {
+        allMediaMessageIds.add(m.getReplyId());
+      }
+    });
+
+    Map<UUID, List<MediaResponse>> mediasByMessage =
+        mediaService.getMediasByMessageIds(allMediaMessageIds);
 
     if (!messages.isEmpty()) {
       this.seenMessage(userId, messages.get(0).getId());
@@ -101,10 +110,18 @@ public class MessageService {
 
     eventPublisher.publishEvent(new MessageCreatedEvent(conversationId, message));
 
-    List<MediaResponse> medias = mediaService.getMediasByMessageIds(List.of(message.getId()))
-        .getOrDefault(message.getId(), List.of());
+    List<UUID> targetIds = new ArrayList<>();
+    targetIds.add(message.getId());
+    if (request.getReplyToMessageId() != null) {
+      targetIds.add(request.getReplyToMessageId());
+    }
+    Map<UUID, List<MediaResponse>> mediasByMessage = mediaService.getMediasByMessageIds(targetIds);
+    List<MediaResponse> medias = mediasByMessage.getOrDefault(message.getId(), List.of());
+    List<MediaResponse> replyMedias = request.getReplyToMessageId() != null
+        ? mediasByMessage.getOrDefault(request.getReplyToMessageId(), List.of())
+        : List.of();
 
-    return MessageResponse.from(message, replyTarget, medias);
+    return MessageResponse.from(message, replyTarget, medias, replyMedias);
   }
 
   @Transactional
@@ -132,6 +149,7 @@ public class MessageService {
     return message;
   }
 
+  
   public void deleteMessage(UUID senderId, UUID messageId) {
     Message message = messageRepository.findById(messageId)
         .orElseThrow(() -> new BadRequestException("Invalid message"));
@@ -172,7 +190,7 @@ public class MessageService {
   public List<MessageResponse> getMediaMessages(UUID userId, UUID conversationId, MessageType type,
       Instant before) {
 
-    List<Message> messages = messageRepository.findMediaMessages(type, conversationId, before);
+    List<Message> messages = messageRepository.findMediaMessages(userId, type, conversationId, before);
 
     List<UUID> messageIds = messages.stream().map(Message::getId).toList();
     Map<UUID, List<MediaResponse>> mediasByMessage = mediaService.getMediasByMessageIds(messageIds);
