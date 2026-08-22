@@ -76,4 +76,25 @@ public class UserRelationController {
 
 
 
+  @GetMapping("/incoming-requests")
+  public ResponseEntity<ApiResponse<List<FriendView>>> getIncomingRequests(
+      @AuthenticationPrincipal AuthUser authUser, @RequestParam(required = false) UUID relationId) {
+    return ResponseEntity.ok(
+        ApiResponse.success(200, userRelationService.getIncomingRequests(authUser.getId(), relationId)));
+  }
+
+  @GetMapping("/status")
+  public ResponseEntity<ApiResponse<List<com.mcxx.chat.userrelation.dto.response.UserRelationStatusView>>> getRelationsStatus(
+      @AuthenticationPrincipal AuthUser authUser, @RequestParam List<UUID> targetUserIds) {
+    return ResponseEntity.ok(
+        ApiResponse.success(200, userRelationService.getRelationsWithUsers(authUser.getId(), targetUserIds)));
+  }
+
+  @GetMapping("/status/{targetId}")
+  public ResponseEntity<ApiResponse<com.mcxx.chat.userrelation.dto.response.UserRelationStatusView>> getRelationStatus(
+      @AuthenticationPrincipal AuthUser authUser, @org.springframework.web.bind.annotation.PathVariable UUID targetId) {
+    return ResponseEntity.ok(
+        ApiResponse.success(200, userRelationService.getRelationWithUser(authUser.getId(), targetId)));
+  }
 }
+

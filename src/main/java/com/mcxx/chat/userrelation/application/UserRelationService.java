@@ -14,6 +14,8 @@ import com.mcxx.chat.userrelation.dto.response.FriendView;
 import com.mcxx.chat.userrelation.dto.request.RelationQuery;
 import lombok.RequiredArgsConstructor;
 
+import com.mcxx.chat.userrelation.dto.response.UserRelationStatusView;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -67,4 +69,24 @@ public class UserRelationService {
   public List<FriendView> getMyRequests(UUID userId, @Nullable UUID relationId) {
     return userRelationRepository.myRequests(userId, relationId);
   }
+
+  @Transactional(readOnly = true)
+  public List<FriendView> getIncomingRequests(UUID userId, @Nullable UUID relationId) {
+    return userRelationRepository.incomingRequests(userId, relationId);
+  }
+
+  @Transactional(readOnly = true)
+  public List<UserRelationStatusView> getRelationsWithUsers(UUID userId, List<UUID> targetUserIds) {
+    if (targetUserIds == null || targetUserIds.isEmpty()) {
+      return List.of();
+    }
+    return userRelationRepository.findRelationsWithUsers(userId, targetUserIds);
+  }
+
+  @Transactional(readOnly = true)
+  public UserRelationStatusView getRelationWithUser(UUID userId, UUID targetId) {
+    List<UserRelationStatusView> list = getRelationsWithUsers(userId, List.of(targetId));
+    return list.isEmpty() ? null : list.get(0);
+  }
 }
+
