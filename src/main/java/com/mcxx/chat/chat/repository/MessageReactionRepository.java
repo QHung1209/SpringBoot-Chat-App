@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import com.mcxx.chat.chat.domain.MessageReaction;
+import com.mcxx.chat.chat.repository.projection.ReactionSummaryProjection;
 
 public interface MessageReactionRepository extends JpaRepository<MessageReaction, UUID> {
   @Query(value = """

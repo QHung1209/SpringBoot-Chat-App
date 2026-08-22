@@ -3,7 +3,7 @@ package com.mcxx.chat.chat.dto.response;
 import java.time.Instant;
 import java.util.UUID;
 import com.mcxx.chat.chat.domain.ConversationRole;
-import com.mcxx.chat.chat.repository.MemberProfileProjection;
+import com.mcxx.chat.chat.repository.projection.MemberProfileProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

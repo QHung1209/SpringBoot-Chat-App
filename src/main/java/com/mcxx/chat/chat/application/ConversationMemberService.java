@@ -2,7 +2,7 @@ package com.mcxx.chat.chat.application;
 
 import com.mcxx.chat.chat.repository.ConversationMemberRepository;
 import com.mcxx.chat.chat.repository.ConversationRepository;
-import com.mcxx.chat.chat.repository.MemberProfileProjection;
+import com.mcxx.chat.chat.repository.projection.MemberProfileProjection;
 import com.mcxx.chat.chat.domain.ConversationMember;
 import java.time.Instant;
 import java.util.List;

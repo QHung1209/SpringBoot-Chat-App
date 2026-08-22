@@ -1,7 +1,7 @@
 package com.mcxx.chat.chat.dto.response;
 
 import java.util.UUID;
-import com.mcxx.chat.chat.repository.ReactionSummaryProjection;
+import com.mcxx.chat.chat.repository.projection.ReactionSummaryProjection;
 import lombok.Getter;
 import lombok.Setter;
 

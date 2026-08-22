@@ -15,13 +15,6 @@ public class SendMessageValidator
       return true;
     }
 
-    if (request.getReceiverId() == null && request.getConversationId() == null) {
-      context.disableDefaultConstraintViolation();
-      context.buildConstraintViolationWithTemplate("receiverId or conversationId is required")
-          .addPropertyNode("receiverId").addConstraintViolation();
-      return false;
-    }
-
     switch (request.getType()) {
       case MessageType.TEXT -> {
         if (request.getContent() == null || request.getContent().isBlank()) {

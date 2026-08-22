@@ -13,7 +13,7 @@ import com.mcxx.chat.chat.dto.response.ReactionResponse;
 import com.mcxx.chat.chat.event.MessageReactionEvent;
 import com.mcxx.chat.chat.repository.MessageReactionRepository;
 import com.mcxx.chat.chat.repository.MessageRepository;
-import com.mcxx.chat.chat.repository.ReactionSummaryProjection;
+import com.mcxx.chat.chat.repository.projection.ReactionSummaryProjection;
 import com.mcxx.chat.common.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 

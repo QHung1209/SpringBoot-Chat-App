@@ -1,4 +1,4 @@
-package com.mcxx.chat.chat.repository;
+package com.mcxx.chat.chat.repository.projection;
 
 import java.time.Instant;
 import java.util.UUID;
