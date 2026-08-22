@@ -16,6 +16,7 @@ public class ConversationResponse {
   private String content;
   private UUID senderId;
   private UUID lastMessageId;
+  private Long unreadCount;
 
   public static ConversationResponse from(Conversation conversation) {
     ConversationResponse response = new ConversationResponse();

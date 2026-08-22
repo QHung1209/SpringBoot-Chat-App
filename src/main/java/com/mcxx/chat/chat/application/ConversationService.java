@@ -2,11 +2,14 @@ package com.mcxx.chat.chat.application;
 
 import com.mcxx.chat.chat.repository.ConversationMemberRepository;
 import com.mcxx.chat.chat.repository.ConversationRepository;
+import com.mcxx.chat.chat.repository.projection.ConversationMessageProjection;
+import com.mcxx.chat.chat.repository.projection.CountUnreadProjection;
 import com.mcxx.chat.chat.domain.ConversationMember;
 import com.mcxx.chat.chat.domain.Conversation;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,7 +22,6 @@ import com.mcxx.chat.chat.domain.ConversationType;
 import com.mcxx.chat.chat.dto.request.CreateGroupRequest;
 import com.mcxx.chat.chat.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.chat.dto.response.ConversationResponse;
-import com.mcxx.chat.chat.repository.ConversationMessageProjection;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -41,15 +43,14 @@ public class ConversationService {
     }
 
     try {
-      Conversation conversation =
-          conversationRepository
-              .save(new Conversation(null, ConversationType.DIRECT, null, pairKey, null, user1));
+      Conversation conversation = conversationRepository
+          .save(new Conversation(null, ConversationType.DIRECT, null, pairKey, null, user1));
 
       conversationMemberRepository.saveAll(List.of(
           new ConversationMember(conversation.getId(), "", user1, ConversationRole.ADMIN, null,
-              null,null),
+              null, null),
           new ConversationMember(conversation.getId(), "", user2, ConversationRole.MEMBER, null,
-              null,null)));
+              null, null)));
 
       return conversation;
     } catch (DataIntegrityViolationException e) {
@@ -63,12 +64,13 @@ public class ConversationService {
     conversation.setName(request.getName());
     conversation.setCreatedBy(meId);
     Conversation conv = conversationRepository.save(conversation);
-    List<ConversationMember> members = request.getMemberIds().stream()
-        .map(
-            id -> new ConversationMember(conv.getId(), "", id, ConversationRole.MEMBER, null, null, meId))
+    List<ConversationMember> members = request
+        .getMemberIds().stream().map(id -> new ConversationMember(conv.getId(), "", id,
+            ConversationRole.MEMBER, null, null, meId))
         .collect(Collectors.toCollection(ArrayList::new));
 
-    members.add(new ConversationMember(conv.getId(), "", meId, ConversationRole.ADMIN, null, null,meId));
+    members.add(
+        new ConversationMember(conv.getId(), "", meId, ConversationRole.ADMIN, null, null, meId));
     conversationMemberRepository.saveAll(members);
 
     return conv;
@@ -77,6 +79,14 @@ public class ConversationService {
   public List<ConversationResponse> getConversations(UUID userId, Instant updatedTime) {
     List<ConversationMessageProjection> list =
         conversationRepository.getConversations(userId, updatedTime);
+    if (list.isEmpty()) {
+      return List.of();
+    }
+    List<UUID> conversationIds = list.stream().map(ConversationMessageProjection::getId).toList();
+    List<CountUnreadProjection> unreadCounts =
+        conversationRepository.countUnread(conversationIds, userId);
+    Map<UUID, Long> unreadCountMap = unreadCounts.stream().collect(Collectors
+        .toMap(CountUnreadProjection::getConversationId, CountUnreadProjection::getCount));
 
     return list.stream().map(proj -> {
       ConversationResponse resp = new ConversationResponse();
@@ -88,6 +98,7 @@ public class ConversationService {
       resp.setContent(proj.getContent());
       resp.setSenderId(proj.getSenderId());
       resp.setLastMessageId(proj.getLastMessageId());
+      resp.setUnreadCount(unreadCountMap.getOrDefault(proj.getId(), 0L));
       return resp;
     }).toList();
   }
@@ -112,6 +123,14 @@ public class ConversationService {
     conv.setLastMessageId(messageId);
     conv.setUpdatedAt(at);
     conversationRepository.save(conv);
+  }
+
+  @Transactional
+  public void deleteConversation(UUID conversationId, UUID userId) {
+    Conversation conversation = conversationRepository.findById(conversationId)
+        .orElseThrow(() -> new NotFoundException(Conversation.class, conversationId));
+    conversationRepository.deleteConversation(conversationId, userId,
+        conversation.getLastMessageId());
   }
 
 }

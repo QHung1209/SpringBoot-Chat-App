@@ -1,6 +1,8 @@
 package com.mcxx.chat.chat.repository;
 
 import com.mcxx.chat.chat.domain.Conversation;
+import com.mcxx.chat.chat.repository.projection.ConversationMessageProjection;
+import com.mcxx.chat.chat.repository.projection.CountUnreadProjection;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -56,4 +58,26 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
       WHERE c.id = :conversationId
       """)
   void updateLastMessageId(UUID conversationId, UUID messageId);
+
+  @Query(value = """
+      SELECT m.conversation_id AS "conversationId", COUNT(m.id)
+      FROM messages m
+      JOIN conversation_members cm
+        ON m.conversation_id = cm.conversation_id
+      WHERE m.conversation_id IN (:conversationIds)
+        AND cm.user_id = :userId
+        AND m.sender_id <> :userId
+        AND (cm.last_read_message_id IS NULL OR m.id > cm.last_read_message_id)
+        AND (cm.hidden_at_message_id IS NULL OR m.id > cm.hidden_at_message_id)
+      GROUP BY m.conversation_id
+      """, nativeQuery = true)
+  List<CountUnreadProjection> countUnread(List<UUID> conversationIds, UUID userId);
+
+  @Modifying
+  @Query("""
+        UPDATE ConversationMember cm
+        SET cm.hiddenAtMessageId = :lastMessageId
+        WHERE cm.conversationId = :conversationId AND cm.userId = :userId
+        """)
+  void deleteConversation(UUID conversationId, UUID userId, UUID lastMessageId);
 }

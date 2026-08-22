@@ -46,67 +46,68 @@ public class ConversationController {
 
   @IsMember
   @GetMapping("/{conversationId}")
-  public ResponseEntity<ApiResponse<ConversationResponse>> detail(@PathVariable UUID conversationId) {
-    return ResponseEntity
-        .ok(ApiResponse.success(200, ConversationResponse.from(conversationService.detail(conversationId))));
+  public ResponseEntity<ApiResponse<ConversationResponse>> detail(
+      @PathVariable UUID conversationId) {
+    return ResponseEntity.ok(ApiResponse.success(200,
+        ConversationResponse.from(conversationService.detail(conversationId))));
+  }
+
+  @IsMember
+  @DeleteMapping("/{conversationId}")
+  public ResponseEntity<ApiResponse<Void>> deleteConversation(
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId) {
+    conversationService.deleteConversation(conversationId, authUser.getId());
+    return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @IsMember
   @GetMapping("/{conversationId}/messages")
   public ResponseEntity<ApiResponse<List<MessageResponse>>> getMessages(
       @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
-      @RequestParam(required = false) Instant before, @RequestParam(required = false) Instant after) {
-    return ResponseEntity
-        .ok(ApiResponse.success(200, messageService.getMessages(authUser.getId(), conversationId,
-            before, after)));
+      @RequestParam(required = false) Instant before, @RequestParam(required = false) Instant after,
+      @RequestParam(required = false) String search) {
+    return ResponseEntity.ok(ApiResponse.success(200,
+        messageService.getMessages(authUser.getId(), conversationId, before, after, search)));
   }
 
   @IsMember
   @PostMapping("/{conversationId}/messages")
   public ResponseEntity<ApiResponse<MessageResponse>> sendMessage(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
       @Valid @RequestBody SendMessageRequest request) {
-    MessageResponse response = messageService.sendMessage(authUser.getId(), request, conversationId);
+    MessageResponse response =
+        messageService.sendMessage(authUser.getId(), request, conversationId);
     return ResponseEntity.ok(ApiResponse.success(200, response));
   }
 
   @IsMember
   @PostMapping("/{conversationId}/messages/{messageId}/seen")
-  public ResponseEntity<ApiResponse<Void>> seenMessage(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
-      @PathVariable UUID messageId) {
+  public ResponseEntity<ApiResponse<Void>> seenMessage(@AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId, @PathVariable UUID messageId) {
     messageService.seenMessage(authUser.getId(), messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @IsMember
   @PostMapping("/{conversationId}/messages/{messageId}/pin")
-  public ResponseEntity<ApiResponse<Void>> pinMessage(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
-      @PathVariable UUID messageId) {
+  public ResponseEntity<ApiResponse<Void>> pinMessage(@AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId, @PathVariable UUID messageId) {
     messageService.pinMessage(authUser.getId(), messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @IsMember
   @PostMapping("/{conversationId}/messages/{messageId}/unpin")
-  public ResponseEntity<ApiResponse<Void>> unpinMessage(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
-      @PathVariable UUID messageId) {
+  public ResponseEntity<ApiResponse<Void>> unpinMessage(@AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId, @PathVariable UUID messageId) {
     messageService.pinMessage(authUser.getId(), messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
 
   @IsMember
   @DeleteMapping("/{conversationId}/messages/{messageId}")
-  public ResponseEntity<ApiResponse<Void>> deleteMessage(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
-      @PathVariable UUID messageId) {
+  public ResponseEntity<ApiResponse<Void>> deleteMessage(@AuthenticationPrincipal AuthUser authUser,
+      @PathVariable UUID conversationId, @PathVariable UUID messageId) {
     messageService.deleteMessage(authUser.getId(), messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
   }
@@ -115,16 +116,15 @@ public class ConversationController {
   public ResponseEntity<ApiResponse<ConversationResponse>> createDirectConversation(
       @AuthenticationPrincipal AuthUser authUser,
       @Valid @RequestBody CreateDirectConversationRequest request) {
-    return ResponseEntity.ok(ApiResponse.success(200,
-        ConversationResponse.from(
-            conversationService.createDirectConversation(authUser.getId(), request.getOtherUserId()))));
+    return ResponseEntity.ok(ApiResponse.success(200, ConversationResponse.from(
+        conversationService.createDirectConversation(authUser.getId(), request.getOtherUserId()))));
   }
 
   @PostMapping("/create-group")
   public ResponseEntity<ApiResponse<ConversationResponse>> createGroupConversation(
       @AuthenticationPrincipal AuthUser authUser, @Valid @RequestBody CreateGroupRequest request) {
-    return ResponseEntity.ok(ApiResponse.success(200,
-        ConversationResponse.from(conversationService.createGroupConversation(authUser.getId(), request))));
+    return ResponseEntity.ok(ApiResponse.success(200, ConversationResponse
+        .from(conversationService.createGroupConversation(authUser.getId(), request))));
   }
 
   @PutMapping("/{conversationId}")
@@ -137,8 +137,7 @@ public class ConversationController {
   @IsMember
   @PostMapping("/{conversationId}/seen")
   public ResponseEntity<ApiResponse<Void>> seenConversation(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
       @RequestParam(required = false) UUID messageId) {
     messageService.seenConversation(authUser.getId(), conversationId, messageId);
     return ResponseEntity.ok(ApiResponse.success(200, null));
@@ -147,8 +146,7 @@ public class ConversationController {
   @IsMember
   @GetMapping("/{conversationId}/media")
   public ResponseEntity<ApiResponse<List<MessageResponse>>> getMediaMessages(
-      @AuthenticationPrincipal AuthUser authUser,
-      @PathVariable UUID conversationId,
+      @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
       @RequestParam(required = false) MessageType type,
       @RequestParam(required = false) Instant before) {
     return ResponseEntity.ok(ApiResponse.success(200,
@@ -160,7 +158,7 @@ public class ConversationController {
   public ResponseEntity<ApiResponse<List<MessageResponse>>> getPinnedMessages(
       @AuthenticationPrincipal AuthUser authUser, @PathVariable UUID conversationId,
       @RequestParam(required = false) Instant before) {
-    return ResponseEntity.ok(ApiResponse.success(200,
-        messageService.getPinnedMessages(conversationId, before)));
+    return ResponseEntity
+        .ok(ApiResponse.success(200, messageService.getPinnedMessages(conversationId, before)));
   }
 }
