@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import com.mcxx.chat.common.exception.NotFoundException;
@@ -22,6 +23,7 @@ import com.mcxx.chat.chat.domain.ConversationType;
 import com.mcxx.chat.chat.dto.request.CreateGroupRequest;
 import com.mcxx.chat.chat.dto.request.UpdateGroupRequest;
 import com.mcxx.chat.chat.dto.response.ConversationResponse;
+import com.mcxx.chat.chat.event.CreateGroupConversation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class ConversationService {
   private final ConversationRepository conversationRepository;
   private final ConversationMemberRepository conversationMemberRepository;
   private final PairKeyGenerator pairKeyGenerator;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public Conversation createDirectConversation(UUID user1, UUID user2) {
@@ -58,6 +61,7 @@ public class ConversationService {
     }
   }
 
+  @Transactional
   public Conversation createGroupConversation(UUID meId, CreateGroupRequest request) {
     Conversation conversation = new Conversation();
     conversation.setType(ConversationType.GROUP);
@@ -73,6 +77,7 @@ public class ConversationService {
         new ConversationMember(conv.getId(), "", meId, ConversationRole.ADMIN, null, null, meId));
     conversationMemberRepository.saveAll(members);
 
+    eventPublisher.publishEvent(new CreateGroupConversation(conv.getId(), meId,request.getMemberIds()));
     return conv;
   }
 

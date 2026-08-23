@@ -56,4 +56,9 @@ public class MessageListener {
   public void onMessageUnpinned(MessageUnpinnedEvent event) {
     chatRealtimeService.publishUnpinMessage(event);
   }
+
+  @EventListener
+  public void onCreateGroupConversation(CreateGroupConversation event) {
+    chatRealtimeService.publishCreateGroupConversation(event);
+  }
 }

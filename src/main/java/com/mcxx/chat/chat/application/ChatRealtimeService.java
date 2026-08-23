@@ -8,11 +8,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcxx.chat.chat.domain.Conversation;
 import com.mcxx.chat.chat.domain.Message;
 import com.mcxx.chat.chat.domain.MessageType;
 import com.mcxx.chat.chat.dto.metadata.MessageMetadata;
 import com.mcxx.chat.chat.dto.request.CreateMessage;
+import com.mcxx.chat.chat.dto.response.ConversationResponse;
 import com.mcxx.chat.chat.dto.response.MessageResponse;
+import com.mcxx.chat.chat.event.CreateGroupConversation;
 import com.mcxx.chat.chat.event.MemberAddedEvent;
 import com.mcxx.chat.chat.event.MemberLeftEvent;
 import com.mcxx.chat.chat.event.MessageDeletedEvent;
@@ -32,6 +35,7 @@ public class ChatRealtimeService {
 
   private final SimpMessagingTemplate messagingTemplate;
   private final ConversationMemberService conversationMemberService;
+  private final ConversationService conversationService;
   private final MessageRepository messageRepository;
   private final ObjectMapper objectMapper;
   private final MessageService messageService;
@@ -128,5 +132,16 @@ public class ChatRealtimeService {
         new MessageMetadata("MESSAGE_UNPINNED", event.userId(), event.messageId()));
     messagingTemplate.convertAndSend("/topic/conversations/" + event.conversationId() + "/unpins",
         event);
+  }
+
+  public void publishCreateGroupConversation(CreateGroupConversation event) {
+    this.createSystemMessage(event.conversationId(), event.userId(),
+        new MessageMetadata("CREATE_GROUP_CONVERSATION", event.userId(), event.conversationId()));
+    Conversation conv = conversationService.detail(event.conversationId());
+    ConversationResponse payload = ConversationResponse.from(conv);
+
+    event.memberIds().forEach(id -> {
+      messagingTemplate.convertAndSendToUser(id.toString(), "/queue/conversations", payload);
+    });
   }
 }
