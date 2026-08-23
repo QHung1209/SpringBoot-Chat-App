@@ -14,7 +14,7 @@ public interface UserRelationRepository extends JpaRepository<UserRelation, UUID
 
   @Query(
       value = """
-          SELECT u.id as userId, u.first_name as firstName, u.last_name as lastName, TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) as full_name, u.avatar_url, u.bio, f.relationId
+          SELECT u.id as userId, u.first_name as firstName, u.last_name as lastName, u.avatar_url, u.bio, f.relationId
           FROM users u
           JOIN (
             SELECT

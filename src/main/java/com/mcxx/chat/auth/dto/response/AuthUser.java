@@ -12,7 +12,8 @@ import lombok.Setter;
 public class AuthUser implements Principal {
   private UUID id;
   private String username;
-  private String fullName;
+  private String firstName;
+  private String lastName;
   private String email;
   private String avatarUrl;
   private UUID deviceId;

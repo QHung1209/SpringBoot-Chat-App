@@ -17,7 +17,6 @@ public class UpdateProfileRequest {
     @Size(max = 100, message = "Last name must be less than 100 characters")
     private String lastName;
 
-    private String fullName;
 
     @Email(message = "Email is invalid")
     private String email;

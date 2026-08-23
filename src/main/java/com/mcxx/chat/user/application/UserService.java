@@ -44,11 +44,6 @@ public class UserService {
       user.setFirstName(req.getFirstName());
     if (req.getLastName() != null)
       user.setLastName(req.getLastName());
-    if (req.getFullName() != null && req.getFirstName() == null && req.getLastName() == null) {
-      String[] parts = req.getFullName().trim().split("\\s+", 2);
-      user.setFirstName(parts[0]);
-      user.setLastName(parts.length > 1 ? parts[1] : "");
-    }
     if (req.getPhoneNumber() != null)
       user.setPhoneNumber(req.getPhoneNumber());
     if (req.getBio() != null)

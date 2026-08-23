@@ -18,6 +18,6 @@ public class UserCacheService {
   public UserBasicInfo getUserBasicInfo(@NonNull UUID id) {
     User u = userRepository.findById(id).orElseThrow();
     return new UserBasicInfo(u.getId(), u.getUsername(), u.getFirstName(), u.getLastName(),
-        u.getFullName(), u.getEmail(), u.getAvatarUrl());
+        u.getEmail(), u.getAvatarUrl());
   }
 }

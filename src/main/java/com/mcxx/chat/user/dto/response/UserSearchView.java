@@ -11,8 +11,6 @@ public interface UserSearchView {
 
   String getLastName();
 
-  String getFullName();
-
   String getEmail();
 
   String getAvatarUrl();

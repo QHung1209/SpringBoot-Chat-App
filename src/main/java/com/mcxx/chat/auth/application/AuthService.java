@@ -48,13 +48,6 @@ public class AuthService {
     user.setPassword(passwordEncoder.encode(req.getPassword()));
     user.setFirstName(req.getFirstName());
     user.setLastName(req.getLastName());
-    if (user.getFirstName() == null && user.getLastName() == null && req.getFullName() != null) {
-      String[] parts = req.getFullName().trim().split("\\s+", 2);
-      user.setFirstName(parts[0]);
-      if (parts.length > 1) {
-        user.setLastName(parts[1]);
-      }
-    }
     user.setEmail(req.getEmail());
 
     userRepository.save(user);

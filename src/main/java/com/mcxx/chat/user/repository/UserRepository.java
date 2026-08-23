@@ -22,7 +22,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
         u.username AS username,
         u.first_name AS "firstName",
         u.last_name AS "lastName",
-        TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))) AS "fullName",
         u.email AS email,
         u.avatar_url AS "avatarUrl",
         u.bio AS bio,

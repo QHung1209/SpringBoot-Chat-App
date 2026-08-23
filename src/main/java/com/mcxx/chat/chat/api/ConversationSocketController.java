@@ -38,7 +38,6 @@ public class ConversationSocketController {
     }
 
     eventPublisher.publishEvent(
-        new TypingEvent(conversationId, authUser.getId(), authUser.getFullName(), request.typing(),
-            Instant.now()));
+        new TypingEvent(conversationId, authUser.getId(), request.typing(), Instant.now()));
   }
 }

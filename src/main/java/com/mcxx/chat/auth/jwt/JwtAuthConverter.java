@@ -21,7 +21,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
   public AbstractAuthenticationToken convert(Jwt jwt) {
     UserBasicInfo info = userCache.getUserBasicInfo(UUID.fromString(jwt.getSubject()));
     AuthUser authUser = new AuthUser(UUID.fromString(info.getId().toString()), info.getUsername(),
-        info.getFullName(), info.getEmail(), info.getAvatar(),
+        info.getFirstName(), info.getLastName(), info.getEmail(), info.getAvatar(),
         UUID.fromString(jwt.getClaimAsString("device_id")),
         Integer.valueOf(jwt.getClaimAsString("token_version")));
     return new UsernamePasswordAuthenticationToken(authUser, jwt,
