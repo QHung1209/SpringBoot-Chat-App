@@ -44,11 +44,15 @@ public class UserRelationService {
     userRelationRepository.save(relation);
   }
 
-  @Transactional(readOnly = true)
   public List<FriendView> getRelations(UUID userId, RelationQuery query) {
     return userRelationRepository.findRelations(userId, query.getRelationId(), query.getSearch(),
         query.getStatus().name());
   }
+
+  public List<UUID> getFriendIds(UUID userId) {
+    return userRelationRepository.findFriendIds(userId);
+  }
+
 
   public void blockUser(UUID userId, UUID targetId) {
     SortedIds ids = getSortedIds(userId, targetId);
@@ -89,4 +93,3 @@ public class UserRelationService {
     return list.isEmpty() ? null : list.get(0);
   }
 }
-
