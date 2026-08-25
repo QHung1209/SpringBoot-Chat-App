@@ -14,8 +14,7 @@ import com.mcxx.chat.auth.dto.response.AuthResponse;
 import com.mcxx.chat.auth.dto.request.LoginRequest;
 import com.mcxx.chat.auth.dto.request.RegisterRequest;
 import com.mcxx.chat.auth.jwt.JwtService;
-import com.mcxx.chat.device.domain.TokenSession;
-import com.mcxx.chat.device.repository.TokenSessionRepository;
+import com.mcxx.chat.device.application.TokenSessionService;
 import com.mcxx.chat.device.domain.UserDevice;
 import com.mcxx.chat.device.repository.UserDeviceRepository;
 import com.mcxx.chat.device.dto.request.CreateDeviceRequest;
@@ -32,7 +31,7 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final UserDeviceRepository userDeviceRepository;
   private final JwtService jwtService;
-  private final TokenSessionRepository tokenSessionRepository;
+  private final TokenSessionService tokenSessionService;
   private final JwtDecoder jwtDecoder;
 
   @Transactional
@@ -97,11 +96,8 @@ public class AuthService {
     String accessToken = jwtService.generateAccessToken(user, device);
     String refreshToken = jwtService.generateRefreshToken(user, device, null);
 
-    TokenSession session =
-        new TokenSession(device.getId(), user.getId(), device.getTokenVersion(),
-            jwtService.getAccessExpSeconds());
-
-    tokenSessionRepository.save(session);
+    tokenSessionService.saveSession(device.getId(), user.getId(), device.getTokenVersion(),
+        jwtService.getAccessExpSeconds());
 
     return AuthResponse.from(UserResponse.from(user), accessToken, refreshToken, device.getId());
   }
@@ -138,9 +134,8 @@ public class AuthService {
     String newAccessToken = jwtService.generateAccessToken(user, device);
     String newRefreshToken =
         jwtService.generateRefreshToken(user, device, jwt.getExpiresAt().getEpochSecond());
-    tokenSessionRepository
-        .save(new TokenSession(device.getId(), user.getId(), device.getTokenVersion(),
-            jwtService.getAccessExpSeconds()));
+    tokenSessionService.saveSession(device.getId(), user.getId(), device.getTokenVersion(),
+        jwtService.getAccessExpSeconds());
 
     return AuthResponse.from(UserResponse.from(user), newAccessToken, newRefreshToken,
         device.getId());
@@ -150,13 +145,14 @@ public class AuthService {
     userDeviceRepository.findByIdAndUserId(deviceId, userId).ifPresent(device -> {
       device.setTokenVersion(device.getTokenVersion() + 1);
       userDeviceRepository.save(device);
-      tokenSessionRepository.deleteById(deviceId);
+      tokenSessionService.deleteSession(deviceId);
     });
   }
 
   @Transactional
   public void logoutAll(UUID userId) {
-    tokenSessionRepository.deleteByUserId(userId);
+    List<UserDevice> devices = userDeviceRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    tokenSessionService.deleteSessions(devices.stream().map(UserDevice::getId).toList());
     userDeviceRepository.incrementTokenVersionByUserId(userId);
   }
 

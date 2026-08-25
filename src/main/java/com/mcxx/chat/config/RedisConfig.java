@@ -19,9 +19,7 @@ public class RedisConfig {
 
   private static final Duration DEFAULT_TTL = Duration.ofMinutes(10);
 
-  private static final Map<String, Duration> CACHE_TTL = Map.of(
-      "conversation-members", Duration.ofMinutes(30)
-  );
+  private static final Map<String, Duration> CACHE_TTL = Map.of();
 
 
   @Bean

@@ -1,6 +1,7 @@
 package com.mcxx.chat.chat.application;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +44,15 @@ public class ConversationMemberCacheService {
       return null;
     }
     return redisTemplate.opsForHash().hasKey(key, userId.toString());
+  }
+
+  public List<UUID> getMemberIds(UUID conversationId) {
+    String key = key(conversationId);
+    if (!isPopulated(key)) {
+      return null;
+    }
+    java.util.Set<Object> keys = redisTemplate.opsForHash().keys(key);
+    return keys.stream().map(k -> UUID.fromString(k.toString())).toList();
   }
 
   public ConversationRole getRole(UUID conversationId, UUID userId) {

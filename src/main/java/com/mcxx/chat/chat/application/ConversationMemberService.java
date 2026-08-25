@@ -5,12 +5,11 @@ import com.mcxx.chat.chat.repository.ConversationRepository;
 import com.mcxx.chat.chat.repository.projection.MemberProfileProjection;
 import com.mcxx.chat.chat.domain.ConversationMember;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,9 +35,14 @@ public class ConversationMemberService {
         createdAt);
   }
 
-  @Cacheable(cacheNames = "conversation-members", key = "#conversationId")
+  @Transactional(readOnly = true)
   public List<UUID> getMemberIds(UUID conversationId) {
-    return conversationMemberRepository.findUserIdsByConversationId(conversationId);
+    List<UUID> cachedIds = memberCacheService.getMemberIds(conversationId);
+    if (cachedIds != null) {
+      return cachedIds;
+    }
+    Map<UUID, ConversationRole> memberRoles = fetchAndCacheMemberRoles(conversationId);
+    return new ArrayList<>(memberRoles.keySet());
   }
 
   public void addMembers(UUID meId, UUID conversationId, List<UUID> memberIds) {
@@ -46,7 +50,6 @@ public class ConversationMemberService {
         memberIds.stream().map(id -> new ConversationMember(conversationId, id, meId)).toList();
     conversationMemberRepository.saveAll(members);
 
-    evictMemberIdsCache(conversationId);
     Map<UUID, ConversationRole> map = members.stream()
         .collect(Collectors.toMap(ConversationMember::getUserId, ConversationMember::getRole));
     memberCacheService.addMembers(conversationId, map);
@@ -58,7 +61,6 @@ public class ConversationMemberService {
 
   private void deleteMemberInternal(UUID conversationId, UUID userId) {
     conversationMemberRepository.deleteByConversationIdAndUserId(conversationId, userId);
-    evictMemberIdsCache(conversationId);
     memberCacheService.removeMember(conversationId, userId);
   }
 
@@ -146,8 +148,4 @@ public class ConversationMemberService {
     memberCacheService.populate(conversationId, memberRoles);
     return memberRoles;
   }
-
-  @CacheEvict(cacheNames = "conversation-members", key = "#conversationId")
-  public void evictMemberIdsCache(UUID conversationId) {}
-
 }
